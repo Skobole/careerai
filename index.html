@@ -11,8 +11,6 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:#fffbf5;color:#1a1a1a;min-height:100vh;}
-
-/* ── Hero ── */
 .hero{position:relative;min-height:540px;display:flex;align-items:center;overflow:hidden;}
 .hero-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1400&q=80&fit=crop');background-size:cover;background-position:center 20%;z-index:0;}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to right, rgba(255,140,50,0.92) 35%, rgba(255,160,60,0.75) 55%, rgba(255,180,80,0.3) 80%, transparent 100%);z-index:1;}
@@ -26,72 +24,21 @@ h1 span{color:#fff3c4;}
 .price-tag strong{color:#fff3c4;font-size:1.1rem;}
 .feature-pills{display:flex;flex-wrap:wrap;gap:8px;}
 .feature-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.4);border-radius:100px;padding:5px 12px;font-size:0.75rem;color:#fff;font-weight:500;backdrop-filter:blur(10px);}
-
-/* ── Stats strip ── */
 .stats-strip{background:linear-gradient(135deg,#ff8c32 0%,#ff6b6b 50%,#ffa94d 100%);padding:32px 24px;}
 .stats-inner{max-width:720px;margin:0 auto;display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:24px;}
 .stat-item{text-align:center;}
 .stat-num{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:#fff;line-height:1;}
 .stat-label{font-size:0.75rem;color:rgba(255,255,255,0.8);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
 .stat-div{width:1px;height:40px;background:rgba(255,255,255,0.3);}
-
-/* ── Main ── */
-.main-wrap{
-  background:linear-gradient(180deg, #fff8ee 0%, #fffbf5 40%, #fff8f0 100%);
-  position:relative;
-  overflow:hidden;
-}
-.main-wrap::before{
-  content:'';
-  position:absolute;
-  top:-120px; right:-120px;
-  width:500px; height:500px;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(255,160,60,0.12) 0%, transparent 70%);
-  pointer-events:none;
-}
-.main-wrap::after{
-  content:'';
-  position:absolute;
-  bottom:-80px; left:-80px;
-  width:400px; height:400px;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(255,107,107,0.08) 0%, transparent 70%);
-  pointer-events:none;
-}
-.side-img-left{
-  position:absolute;
-  left:0; top:0; bottom:0;
-  width:260px;
-  background-image:url('https://images.unsplash.com/photo-1556761175-4b46a572b786?w=700&q=80&fit=crop');
-  background-size:cover;
-  background-position:center top;
-  opacity:0.35;
-  z-index:0;
-  mask-image:linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%);
-  -webkit-mask-image:linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%);
-}
-.side-img-right{
-  position:absolute;
-  right:0; top:0; bottom:0;
-  width:260px;
-  background-image:url('https://images.unsplash.com/photo-1560250097-0b93528c311a?w=700&q=80&fit=crop');
-  background-size:cover;
-  background-position:center top;
-  opacity:0.35;
-  z-index:0;
-  mask-image:linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%);
-  -webkit-mask-image:linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%);
-}
-
+.main-wrap{background:linear-gradient(180deg,#fff8ee 0%,#fffbf5 40%,#fff8f0 100%);position:relative;overflow:hidden;}
+.main-wrap::before{content:'';position:absolute;top:-120px;right:-120px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(255,160,60,0.12) 0%,transparent 70%);pointer-events:none;}
+.main-wrap::after{content:'';position:absolute;bottom:-80px;left:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,107,0.08) 0%,transparent 70%);pointer-events:none;}
+.side-img-left{position:absolute;left:0;top:0;bottom:0;width:260px;background-image:url('https://images.unsplash.com/photo-1556761175-4b46a572b786?w=700&q=80&fit=crop');background-size:cover;background-position:center top;opacity:0.35;z-index:0;mask-image:linear-gradient(to right,rgba(0,0,0,1) 0%,rgba(0,0,0,0.6) 60%,rgba(0,0,0,0) 100%);-webkit-mask-image:linear-gradient(to right,rgba(0,0,0,1) 0%,rgba(0,0,0,0.6) 60%,rgba(0,0,0,0) 100%);}
+.side-img-right{position:absolute;right:0;top:0;bottom:0;width:260px;background-image:url('https://images.unsplash.com/photo-1560250097-0b93528c311a?w=700&q=80&fit=crop');background-size:cover;background-position:center top;opacity:0.35;z-index:0;mask-image:linear-gradient(to left,rgba(0,0,0,1) 0%,rgba(0,0,0,0.6) 60%,rgba(0,0,0,0) 100%);-webkit-mask-image:linear-gradient(to left,rgba(0,0,0,1) 0%,rgba(0,0,0,0.6) 60%,rgba(0,0,0,0) 100%);}
 .main{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:48px 24px 80px;}
-
-/* Section title above cards */
 .section-intro{text-align:center;margin-bottom:32px;}
 .section-intro h2{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:#1a1a1a;margin-bottom:8px;}
 .section-intro p{font-size:0.95rem;color:#666;font-weight:300;}
-
-/* Cards */
 .card{background:#fff;border:1px solid rgba(255,140,50,0.15);border-radius:20px;padding:28px;margin-bottom:16px;box-shadow:0 4px 24px rgba(255,120,40,0.08);}
 .card-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#ff8c32;font-weight:500;margin-bottom:14px;}
 .tabs{display:flex;gap:4px;background:rgba(255,140,50,0.07);border-radius:10px;padding:4px;margin-bottom:16px;}
@@ -108,49 +55,16 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 .drop-sub{font-size:0.78rem;color:rgba(26,26,26,0.35);}
 .file-chip{display:inline-flex;align-items:center;gap:10px;background:rgba(255,140,50,0.08);border:1px solid rgba(255,140,50,0.25);border-radius:8px;padding:10px 16px;font-size:0.86rem;color:#ff8c32;margin-top:4px;}
 .file-chip button{background:none;border:none;cursor:pointer;color:rgba(255,140,50,0.5);font-size:1rem;padding:0;line-height:1;}
-
-
-/* ── Button System ── */
-
-/* Base — shared by all buttons */
-.btn-base{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:500;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;text-decoration:none;}
-.btn-base:disabled{opacity:0.38;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
-
-/* Primary — main action, rich red, full width */
 .btn{width:100%;padding:18px 24px;background:#e8192c;color:#fff;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.25s;margin-top:24px;box-shadow:0 6px 24px rgba(232,25,44,0.38);border:none;letter-spacing:0.5px;}
 .btn:hover:not(:disabled){background:#cc1526;transform:translateY(-2px);box-shadow:0 10px 32px rgba(232,25,44,0.48);}
 .btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
-
-/* Secondary — outlined, subtle */
-.btn-secondary{padding:11px 20px;background:transparent;color:#1a1a1a;border:1.5px solid rgba(0,0,0,0.18);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:400;cursor:pointer;transition:all 0.2s;}
-.btn-secondary:hover{background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.3);}
-
-/* Gold — payment, premium feel */
-.btn-gold{padding:14px 28px;background:#c9a227;color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(201,162,39,0.4);letter-spacing:0.3px;}
-.btn-gold:hover{background:#b8911f;transform:translateY(-1px);box-shadow:0 8px 24px rgba(201,162,39,0.5);}
-
-/* LinkedIn — brand blue */
-.btn-linkedin{padding:12px 22px;background:#0077b5;color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,119,181,0.3);}
-.btn-linkedin:hover{background:#005f94;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,119,181,0.4);}
-
-/* Coach/Chat — warm coral, friendly */
-.btn-chat{padding:12px 22px;background:#ff8c32;color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 14px rgba(255,140,50,0.3);}
-.btn-chat:hover{background:#e87820;transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,140,50,0.4);}
-
-/* Ghost — minimal, for reset/back actions */
 .btn-ghost{padding:12px 20px;background:transparent;color:rgba(26,26,26,0.45);border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:400;cursor:pointer;transition:all 0.2s;width:100%;margin-top:8px;}
 .btn-ghost:hover{border-color:rgba(232,25,44,0.35);color:#e8192c;}
-
-/* Copy — small inline utility */
 .btn-copy{padding:7px 14px;background:transparent;color:#ff8c32;border:1px solid rgba(255,140,50,0.35);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.76rem;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:12px;}
 .btn-copy:hover{background:rgba(255,140,50,0.07);}
-
-/* Send — chat submit */
 .btn-send{padding:12px 20px;background:#e8192c;color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;box-shadow:0 3px 10px rgba(232,25,44,0.3);}
 .btn-send:hover:not(:disabled){background:#cc1526;transform:translateY(-1px);}
 .btn-send:disabled{opacity:0.38;cursor:not-allowed;}
-
-/* Loading */
 .loading-wrap{text-align:center;padding:70px 24px;}
 .spinner{width:44px;height:44px;border:3px solid rgba(255,140,50,0.2);border-top-color:#ff8c32;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 24px;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -161,8 +75,6 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 .loading-step.done{color:#ff8c32;}
 .step-dot{width:6px;height:6px;border-radius:50%;background:rgba(26,26,26,0.12);flex-shrink:0;}
 .loading-step.done .step-dot{background:#ff8c32;}
-
-/* Score */
 .score-card{background:linear-gradient(135deg,#fff8ee,#fff3f3);border:1px solid rgba(255,140,50,0.2);border-radius:20px;padding:28px 32px;margin-bottom:16px;box-shadow:0 4px 24px rgba(255,120,40,0.08);}
 .score-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;}
 .score-left{flex:1;}
@@ -178,8 +90,6 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 .score-bar-fill.high{background:linear-gradient(90deg,#16a34a,#4ade80);}
 .score-bar-fill.mid{background:linear-gradient(90deg,#ff8c32,#ffa94d);}
 .score-bar-fill.low{background:linear-gradient(90deg,#ef4444,#f87171);}
-
-/* Results */
 .result-section{margin-bottom:16px;}
 .section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#ff8c32;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
 .section-label::after{content:'';flex:1;height:1px;background:rgba(255,140,50,0.2);}
@@ -196,8 +106,6 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 .result-box{background:#fffaf5;border:1px solid rgba(255,140,50,0.15);border-radius:14px;padding:24px;font-size:0.93rem;line-height:1.85;font-weight:300;color:rgba(26,26,26,0.85);white-space:pre-wrap;}
 .error-box{background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:14px 18px;color:#ef4444;font-size:0.88rem;margin-top:14px;}
 .footer{text-align:center;margin-top:56px;color:rgba(26,26,26,0.25);font-size:0.75rem;letter-spacing:1.5px;}
-
-/* Coach */
 .coach-wrap{margin-top:32px;border-top:1px solid rgba(255,140,50,0.15);padding-top:28px;}
 .coach-heading{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#ff8c32;font-weight:500;margin-bottom:6px;}
 .coach-subheading{font-size:0.82rem;color:rgba(26,26,26,0.45);font-weight:300;margin-bottom:18px;}
@@ -276,7 +184,7 @@ function CoachChat({result,setResult}){
     setThinking(true);
     try{
       const context=`You are a warm, encouraging career coach helping refine job application materials.\n\nCurrent cover letter:\n${result.coverLetter}\n\nRewritten bullets:\n${(result.rewrittenBullets||[]).map((b,i)=>`Bullet ${i+1}: ${b.improved}`).join("\n")}\n\nMissing keywords: ${(result.missingKeywords||[]).join(", ")}\n\nUser request: "${userMsg}"\n\nBe warm, direct and helpful. If rewriting the cover letter, provide the complete new version starting with "Dear Hiring Manager," ending with "Best regards,\n[Your Name]".`;
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:context}]})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:context}]})});
       const data=await response.json();
       const reply=data.content?.map(b=>b.text||"").join("")||"Sorry, something went wrong.";
       setMessages(prev=>[...prev,{role:"assistant",content:reply}]);
@@ -290,7 +198,7 @@ function CoachChat({result,setResult}){
   return(
     <div className="coach-wrap">
       <div className="coach-heading">Your AI Career Coach</div>
-      <div className="coach-subheading">Happy with the results? Want to tweak anything? Just ask — I am here to help you land this job.</div>
+      <div className="coach-subheading">Happy with the results? Want to tweak anything? Just ask — here to help you land this job.</div>
       <div className="quick-prompts">{quickPrompts.map((p,i)=><button key={i} className="quick-prompt" onClick={()=>send(p)} disabled={thinking}>{p}</button>)}</div>
       {messages.length>0&&(
         <div className="chat-history">
@@ -309,7 +217,7 @@ function CoachChat({result,setResult}){
 
 const SYSTEM_PROMPT=`You are a senior ATS optimization expert and career coach. Analyze the resume against the job description and return ONLY a valid JSON object (no preamble, no markdown, no backticks):
 {"atsScore":<integer 0-100>,"foundKeywords":[<max 12>],"missingKeywords":[<max 10, highest impact first>],"formattingWarnings":[<ATS issues, empty array if none>],"rewrittenBullets":[{"original":"<bullet>","improved":"<rewritten>"}],"coverLetter":"<3-4 paragraphs. Dear Hiring Manager, ... Best regards, [Your Name]>"}
-Rules: accurate atsScore, 3 rewritten bullets, specific upbeat cover letter.`;
+Rules: accurate atsScore, 3 rewritten bullets, specific cover letter.`;
 
 function App(){
   const [step,setStep]=useState("input");
@@ -337,13 +245,21 @@ function App(){
         if(resumeFile)resumeText=await readFileAsText(resumeFile);
         messages=[{role:"user",content:`RESUME:\n${resumeText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:SYSTEM_PROMPT,messages})});
+      const response=await fetch("/api/chat",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:SYSTEM_PROMPT,messages})
+      });
       const data=await response.json();
+      if(data.error){throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));}
       const text=data.content?.map(b=>b.text||"").join("")||"";
-      const parsed=JSON.parse(text.replace(/```json|```/g,"").trim());
+      if(!text){throw new Error("Empty response from AI");}
+      const jsonMatch=text.match(/\{[\s\S]*\}/);
+      if(!jsonMatch){throw new Error("Could not parse AI response");}
+      const parsed=JSON.parse(jsonMatch[0]);
       setResult(parsed);setStep("result");
     }catch(err){
-      setError("Something went wrong — please check your inputs and try again.");setStep("input");
+      setError("Something went wrong: "+err.message);setStep("input");
     }
   }
 
@@ -399,7 +315,7 @@ function App(){
             <>
               <div className="section-intro">
                 <h2>Let's get you hired</h2>
-                <p>Paste your resume and the job description below — we'll handle the rest.</p>
+                <p>Paste your resume and the job description below — we will handle the rest.</p>
               </div>
               <div className="card">
                 <div className="card-label">Your Resume</div>
