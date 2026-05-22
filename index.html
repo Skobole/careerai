@@ -184,7 +184,7 @@ function CoachChat({result,setResult}){
     setThinking(true);
     try{
       const context=`You are a warm, encouraging career coach helping refine job application materials.\n\nCurrent cover letter:\n${result.coverLetter}\n\nRewritten bullets:\n${(result.rewrittenBullets||[]).map((b,i)=>`Bullet ${i+1}: ${b.improved}`).join("\n")}\n\nMissing keywords: ${(result.missingKeywords||[]).join(", ")}\n\nUser request: "${userMsg}"\n\nBe warm, direct and helpful. If rewriting the cover letter, provide the complete new version starting with "Dear Hiring Manager," ending with "Best regards,\n[Your Name]".`;
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:2000,messages:[{role:"user",content:context}]})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:context}]})});
       const data=await response.json();
       const reply=data.content?.map(b=>b.text||"").join("")||"Sorry, something went wrong.";
       setMessages(prev=>[...prev,{role:"assistant",content:reply}]);
@@ -228,6 +228,7 @@ function App(){
   const [result,setResult]=useState(null);
   const [error,setError]=useState("");
   const [copied,setCopied]=useState(false);
+  const [copiedResume,setCopiedResume]=useState(false);
   const [loadStep,setLoadStep]=useState(0);
   const hasResume=resume.trim().length>80||resumeFile!==null;
   const canSubmit=hasResume&&jobDesc.trim().length>60;
@@ -248,7 +249,7 @@ function App(){
       const response=await fetch("/api/chat",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,system:SYSTEM_PROMPT,messages})
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:SYSTEM_PROMPT,messages})
       });
       const data=await response.json();
       if(data.error){throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));}
@@ -395,6 +396,35 @@ function App(){
                   {copied?"✓ Copied!":"Copy to clipboard"}
                 </button>
               </div>
+              <div className="card result-section">
+                <div className="section-label">Optimized Resume</div>
+                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your full resume with all bullets replaced by optimized versions — ready to copy and paste</p>
+                <div className="result-box" style={{maxHeight:"400px",overflowY:"auto"}}>
+                  {resume
+                    ? (() => {
+                        let optimized = resume;
+                        (result.rewrittenBullets||[]).forEach(b => {
+                          if(b.original && b.improved) {
+                            optimized = optimized.replace(b.original, b.improved);
+                          }
+                        });
+                        return optimized;
+                      })()
+                    : "Resume text not available — paste your resume text (not upload) to use this feature."
+                  }
+                </div>
+                <div style={{display:"flex",gap:"10px",marginTop:"12px",flexWrap:"wrap"}}>
+                  <button className="btn-copy" onClick={()=>{
+                    let optimized = resume;
+                    (result.rewrittenBullets||[]).forEach(b => {
+                      if(b.original && b.improved) optimized = optimized.replace(b.original, b.improved);
+                    });
+                    navigator.clipboard.writeText(optimized);
+                    setCopiedResume(true);setTimeout(()=>setCopiedResume(false),2000);
+                  }}>{copiedResume?"✓ Copied!":"Copy optimized resume"}</button>
+                </div>
+              </div>
+
               <div className="card">
                 <CoachChat result={result} setResult={setResult}/>
               </div>
