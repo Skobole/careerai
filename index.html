@@ -337,7 +337,7 @@ function App(){
         if(resumeFile)resumeText=await readFileAsText(resumeFile);
         messages=[{role:"user",content:`RESUME:\n${resumeText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYSTEM_PROMPT,messages})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:SYSTEM_PROMPT,messages})});
       const data=await response.json();
       const text=data.content?.map(b=>b.text||"").join("")||"";
       const parsed=JSON.parse(text.replace(/```json|```/g,"").trim());
