@@ -13,7 +13,7 @@
 body{font-family:'DM Sans',sans-serif;background:#fffbf5;color:#1a1a1a;min-height:100vh;}
 .hero{position:relative;min-height:540px;display:flex;align-items:center;overflow:hidden;}
 .hero-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1400&q=80&fit=crop');background-size:cover;background-position:center 20%;z-index:0;}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(to right, rgba(255,140,50,0.92) 35%, rgba(255,160,60,0.75) 55%, rgba(255,180,80,0.3) 80%, transparent 100%);z-index:1;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(255,140,50,0.92) 35%,rgba(255,160,60,0.75) 55%,rgba(255,180,80,0.3) 80%,transparent 100%);z-index:1;}
 .hero-content{position:relative;z-index:2;max-width:820px;margin:0 auto;padding:90px 32px;width:100%;}
 .badge{display:inline-block;border:1px solid rgba(255,255,255,0.5);color:#fff;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:22px;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);}
 h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5vw,3.7rem);font-weight:900;line-height:1.1;color:#fff;margin-bottom:16px;text-shadow:0 2px 20px rgba(200,80,0,0.3);}
@@ -62,9 +62,17 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 .btn-ghost:hover{border-color:rgba(232,25,44,0.35);color:#e8192c;}
 .btn-copy{padding:7px 14px;background:transparent;color:#ff8c32;border:1px solid rgba(255,140,50,0.35);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.76rem;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:12px;}
 .btn-copy:hover{background:rgba(255,140,50,0.07);}
+.btn-export{padding:9px 18px;background:transparent;border:1.5px solid;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:7px;}
+.btn-export:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-export.word{color:#2b579a;border-color:rgba(43,87,154,0.35);}
+.btn-export.word:hover:not(:disabled){background:rgba(43,87,154,0.06);}
+.btn-export.pdf{color:#e8192c;border-color:rgba(232,25,44,0.35);}
+.btn-export.pdf:hover:not(:disabled){background:rgba(232,25,44,0.05);}
 .btn-send{padding:12px 20px;background:#e8192c;color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;box-shadow:0 3px 10px rgba(232,25,44,0.3);}
 .btn-send:hover:not(:disabled){background:#cc1526;transform:translateY(-1px);}
 .btn-send:disabled{opacity:0.38;cursor:not-allowed;}
+.export-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center;}
+.export-note{font-size:0.75rem;color:rgba(26,26,26,0.38);margin-top:8px;}
 .loading-wrap{text-align:center;padding:70px 24px;}
 .spinner{width:44px;height:44px;border:3px solid rgba(255,140,50,0.2);border-top-color:#ff8c32;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 24px;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -126,7 +134,7 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useRef, useEffect } = React;
+const {useState,useRef,useEffect}=React;
 
 function readFileAsBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 function readFileAsText(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(file);});}
@@ -215,9 +223,33 @@ function CoachChat({result,setResult}){
   );
 }
 
-const SYSTEM_PROMPT=`You are a senior ATS optimization expert and career coach. Analyze the resume against the job description and return ONLY a valid JSON object (no preamble, no markdown, no backticks):
-{"atsScore":<integer 0-100>,"foundKeywords":[<max 12>],"missingKeywords":[<max 10, highest impact first>],"formattingWarnings":[<ATS issues, empty array if none>],"rewrittenBullets":[{"original":"<bullet>","improved":"<rewritten>"}],"coverLetter":"<3-4 paragraphs. Dear Hiring Manager, ... Best regards, [Your Name]>"}
-Rules: accurate atsScore, 3 rewritten bullets, specific cover letter.`;
+const SYSTEM_PROMPT=`You are a senior ATS optimization expert and career coach. Analyze the resume against the job description.
+
+Return ONLY a valid JSON object (no preamble, no markdown, no backticks) with this exact structure:
+{
+  "atsScore": <integer 0-100>,
+  "foundKeywords": [<max 12 keywords found in both>],
+  "missingKeywords": [<max 10 keywords missing, highest impact first>],
+  "formattingWarnings": [<ATS issues, empty array if none>],
+  "rewrittenBullets": [{"original":"<exact bullet from resume>","improved":"<rewritten with keywords>"}],
+  "coverLetter": "<3-4 paragraphs. Dear Hiring Manager, ... Best regards, [Your Name]>",
+  "resumeData": {
+    "name": "<candidate full name>",
+    "contact": "<city, phone, email on one line>",
+    "summary": "<professional summary paragraph>",
+    "industry": "<industry type e.g. hospitality, tech, finance, healthcare>",
+    "sections": [
+      {
+        "title": "<section name e.g. Core Competencies, Professional Experience, Education>",
+        "subtitle": "<job title and company and dates if applicable, else null>",
+        "body": "<non-bullet body text if any, else null>",
+        "bullets": ["<bullet 1>","<bullet 2>"]
+      }
+    ]
+  }
+}
+
+Rules: accurate atsScore, 3 rewritten bullets applied in resumeData, specific cover letter, resumeData must be fully structured and complete.`;
 
 function App(){
   const [step,setStep]=useState("input");
@@ -230,6 +262,8 @@ function App(){
   const [copied,setCopied]=useState(false);
   const [copiedResume,setCopiedResume]=useState(false);
   const [loadStep,setLoadStep]=useState(0);
+  const [exporting,setExporting]=useState(false);
+
   const hasResume=resume.trim().length>80||resumeFile!==null;
   const canSubmit=hasResume&&jobDesc.trim().length>60;
 
@@ -246,22 +280,91 @@ function App(){
         if(resumeFile)resumeText=await readFileAsText(resumeFile);
         messages=[{role:"user",content:`RESUME:\n${resumeText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }
-      const response=await fetch("/api/chat",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,system:SYSTEM_PROMPT,messages})
-      });
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,system:SYSTEM_PROMPT,messages})});
       const data=await response.json();
       if(data.error){throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));}
       const text=data.content?.map(b=>b.text||"").join("")||"";
-      if(!text){throw new Error("Empty response from AI");}
+      if(!text)throw new Error("Empty response from AI");
       const jsonMatch=text.match(/\{[\s\S]*\}/);
-      if(!jsonMatch){throw new Error("Could not parse AI response");}
+      if(!jsonMatch)throw new Error("Could not parse AI response");
       const parsed=JSON.parse(jsonMatch[0]);
       setResult(parsed);setStep("result");
     }catch(err){
       setError("Something went wrong: "+err.message);setStep("input");
     }
+  }
+
+  async function exportWord(){
+    if(!result?.resumeData)return;
+    setExporting(true);
+    try{
+      const response=await fetch("/api/export",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({resumeData:result.resumeData})});
+      const blob=await response.blob();
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url;
+      a.download="optimized-resume.doc";
+      a.click();
+      URL.revokeObjectURL(url);
+    }catch(e){
+      alert("Export failed. Please try again.");
+    }
+    setExporting(false);
+  }
+
+  async function exportPDF(){
+    if(!result?.resumeData)return;
+    const d=result.resumeData;
+    let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    <style>
+      @page{size:8.5in 11in;margin:0.75in 0.9in;}
+      body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;max-width:700px;margin:0 auto;}
+      .name{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:2pt;letter-spacing:1px;}
+      .contact{font-size:9.5pt;text-align:center;color:#444;margin-bottom:10pt;}
+      .section-header{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1.5px solid #1a1a1a;margin-top:10pt;margin-bottom:4pt;padding-bottom:2pt;}
+      .subtitle{font-size:10pt;font-weight:bold;margin-bottom:2pt;}
+      .body{font-size:10pt;margin-bottom:4pt;}
+      ul{margin:2pt 0 4pt 0;padding-left:16pt;}
+      li{font-size:10pt;margin-bottom:2pt;}
+      @media print{body{margin:0;}}
+    </style></head><body>`;
+    html+=`<p class="name">${d.name}</p>`;
+    html+=`<p class="contact">${d.contact}</p>`;
+    if(d.summary){
+      html+=`<p class="section-header">Professional Summary</p>`;
+      html+=`<p class="body">${d.summary}</p>`;
+    }
+    (d.sections||[]).forEach(s=>{
+      html+=`<p class="section-header">${s.title}</p>`;
+      if(s.subtitle)html+=`<p class="subtitle">${s.subtitle}</p>`;
+      if(s.body)html+=`<p class="body">${s.body}</p>`;
+      if(s.bullets&&s.bullets.length){
+        html+=`<ul>`;
+        s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});
+        html+=`</ul>`;
+      }
+    });
+    html+=`</body></html>`;
+    const win=window.open("","_blank");
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(()=>win.print(),600);
+  }
+
+  function getOptimizedText(){
+    if(!result?.resumeData)return "";
+    const d=result.resumeData;
+    let text=`${d.name}\n${d.contact}\n\n`;
+    if(d.summary)text+=`PROFESSIONAL SUMMARY\n${d.summary}\n\n`;
+    (d.sections||[]).forEach(s=>{
+      text+=`${s.title.toUpperCase()}\n`;
+      if(s.subtitle)text+=`${s.subtitle}\n`;
+      if(s.body)text+=`${s.body}\n`;
+      if(s.bullets)s.bullets.forEach(b=>{text+=`• ${b}\n`;});
+      text+="\n";
+    });
+    return text;
   }
 
   function reset(){setStep("input");setResult(null);setError("");setResume("");setResumeFile(null);setJobDesc("");setLoadStep(0);}
@@ -285,26 +388,18 @@ function App(){
             <span className="feature-pill">✓ Bullet Rewrites</span>
             <span className="feature-pill">✓ Cover Letter</span>
             <span className="feature-pill">✓ AI Coach</span>
+            <span className="feature-pill">✓ Resume Export</span>
           </div>
         </div>
       </div>
 
       <div className="stats-strip">
         <div className="stats-inner">
-          <div className="stat-item">
-            <div className="stat-num">75%</div>
-            <div className="stat-label">Resumes rejected by ATS</div>
-          </div>
+          <div className="stat-item"><div className="stat-num">75%</div><div className="stat-label">Resumes rejected by ATS</div></div>
           <div className="stat-div"/>
-          <div className="stat-item">
-            <div className="stat-num">3x</div>
-            <div className="stat-label">More callbacks with optimization</div>
-          </div>
+          <div className="stat-item"><div className="stat-num">3x</div><div className="stat-label">More callbacks with optimization</div></div>
           <div className="stat-div"/>
-          <div className="stat-item">
-            <div className="stat-num">Fast</div>
-            <div className="stat-label">Results in seconds</div>
-          </div>
+          <div className="stat-item"><div className="stat-num">Fast</div><div className="stat-label">Results in seconds</div></div>
         </div>
       </div>
 
@@ -359,7 +454,9 @@ function App(){
                 <h2>Your results are ready</h2>
                 <p>Here is everything you need to land that interview.</p>
               </div>
+
               <ScoreGauge score={result.atsScore}/>
+
               <div className="card result-section">
                 <div className="section-label">Keyword Match</div>
                 <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.45)",marginBottom:"12px",fontWeight:300}}>Green = found in your resume · Red = missing (add these to beat ATS)</p>
@@ -368,6 +465,7 @@ function App(){
                   {(result.missingKeywords||[]).map((k,i)=><span key={i} className="kw-chip kw-missing">✗ {k}</span>)}
                 </div>
               </div>
+
               {result.formattingWarnings?.length>0&&(
                 <div className="card result-section">
                   <div className="section-label">ATS Formatting Warnings</div>
@@ -376,6 +474,7 @@ function App(){
                   ))}
                 </div>
               )}
+
               {result.rewrittenBullets?.length>0&&(
                 <div className="card result-section">
                   <div className="section-label">Resume Bullet Rewrites</div>
@@ -389,6 +488,7 @@ function App(){
                   ))}
                 </div>
               )}
+
               <div className="card result-section">
                 <div className="section-label">Tailored Cover Letter</div>
                 <div className="result-box">{result.coverLetter}</div>
@@ -396,81 +496,27 @@ function App(){
                   {copied?"✓ Copied!":"Copy to clipboard"}
                 </button>
               </div>
+
               <div className="card result-section">
                 <div className="section-label">Optimized Resume</div>
-                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your full resume with all bullets replaced by optimized versions — ready to export</p>
-                <div className="result-box" style={{maxHeight:"400px",overflowY:"auto"}}>
-                  {resume
-                    ? (() => {
-                        let optimized = resume;
-                        (result.rewrittenBullets||[]).forEach(b => {
-                          if(b.original && b.improved) {
-                            optimized = optimized.replace(b.original, b.improved);
-                          }
-                        });
-                        return optimized;
-                      })()
-                    : "Resume text not available — paste your resume text (not upload) to use this feature."
-                  }
+                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>
+                  Your complete resume rebuilt with optimized bullets and keywords — professionally formatted and ready to send.
+                </p>
+                <div className="result-box" style={{maxHeight:"360px",overflowY:"auto",fontFamily:"Arial,sans-serif",fontSize:"0.88rem"}}>
+                  {result.resumeData ? getOptimizedText() : "Resume data not available."}
                 </div>
-                <div style={{display:"flex",gap:"10px",marginTop:"12px",flexWrap:"wrap"}}>
-                  <button className="btn-copy" onClick={()=>{
-                    let optimized = resume;
-                    (result.rewrittenBullets||[]).forEach(b => {
-                      if(b.original && b.improved) optimized = optimized.replace(b.original, b.improved);
-                    });
-                    navigator.clipboard.writeText(optimized);
-                    setCopiedResume(true);setTimeout(()=>setCopiedResume(false),2000);
-                  }}>{copiedResume?"✓ Copied!":"Copy to clipboard"}</button>
-
-                  <button className="btn-copy" style={{borderColor:"rgba(0,119,181,0.4)",color:"#0077b5"}} onClick={()=>{
-                    let optimized = resume;
-                    (result.rewrittenBullets||[]).forEach(b => {
-                      if(b.original && b.improved) optimized = optimized.replace(b.original, b.improved);
-                    });
-                    const lines = optimized.split("\n");
-                    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-                    <style>
-                      body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;max-width:750px;margin:40px auto;padding:0 40px;color:#1a1a1a;}
-                      p{margin:4px 0;}
-                      .line{margin:2px 0;}
-                    </style></head><body>`;
-                    lines.forEach(line => {
-                      html += `<p class="line">${line || "&nbsp;"}</p>`;
-                    });
-                    html += `</body></html>`;
-                    const blob = new Blob([html], {type:"application/msword"});
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = "optimized-resume.doc";
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}>Download Word</button>
-
-                  <button className="btn-copy" style={{borderColor:"rgba(239,68,68,0.4)",color:"#ef4444"}} onClick={()=>{
-                    let optimized = resume;
-                    (result.rewrittenBullets||[]).forEach(b => {
-                      if(b.original && b.improved) optimized = optimized.replace(b.original, b.improved);
-                    });
-                    const lines = optimized.split("\n");
-                    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-                    <style>
-                      body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;max-width:750px;margin:40px auto;padding:0 40px;color:#1a1a1a;}
-                      p{margin:2px 0;}
-                      @media print{body{margin:0;padding:20px;}}
-                    </style></head><body>`;
-                    lines.forEach(line => {
-                      html += `<p>${line || "&nbsp;"}</p>`;
-                    });
-                    html += `</body></html>`;
-                    const win = window.open("","_blank");
-                    win.document.write(html);
-                    win.document.close();
-                    win.focus();
-                    setTimeout(()=>win.print(), 500);
-                  }}>Download PDF</button>
+                <div className="export-row">
+                  <button className="btn-copy" onClick={()=>{navigator.clipboard.writeText(getOptimizedText());setCopiedResume(true);setTimeout(()=>setCopiedResume(false),2000);}}>
+                    {copiedResume?"✓ Copied!":"Copy text"}
+                  </button>
+                  <button className="btn-export word" onClick={exportWord} disabled={exporting||!result.resumeData}>
+                    {exporting?"Generating...":"↓ Download Word"}
+                  </button>
+                  <button className="btn-export pdf" onClick={exportPDF} disabled={!result.resumeData}>
+                    ↓ Download PDF
+                  </button>
                 </div>
+                <p className="export-note">Word doc opens in Microsoft Word, Google Docs, or Pages. PDF opens print dialog — choose "Save as PDF".</p>
               </div>
 
               <div className="card">
