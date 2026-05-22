@@ -276,7 +276,7 @@ function CoachChat({result,setResult}){
     setThinking(true);
     try{
       const context=`You are a warm, encouraging career coach helping refine job application materials.\n\nCurrent cover letter:\n${result.coverLetter}\n\nRewritten bullets:\n${(result.rewrittenBullets||[]).map((b,i)=>`Bullet ${i+1}: ${b.improved}`).join("\n")}\n\nMissing keywords: ${(result.missingKeywords||[]).join(", ")}\n\nUser request: "${userMsg}"\n\nBe warm, direct and helpful. If rewriting the cover letter, provide the complete new version starting with "Dear Hiring Manager," ending with "Best regards,\n[Your Name]".`;
-      const response=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:context}]})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:context}]})});
       const data=await response.json();
       const reply=data.content?.map(b=>b.text||"").join("")||"Sorry, something went wrong.";
       setMessages(prev=>[...prev,{role:"assistant",content:reply}]);
@@ -337,7 +337,7 @@ function App(){
         if(resumeFile)resumeText=await readFileAsText(resumeFile);
         messages=[{role:"user",content:`RESUME:\n${resumeText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }
-      const response=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYSTEM_PROMPT,messages})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYSTEM_PROMPT,messages})});
       const data=await response.json();
       const text=data.content?.map(b=>b.text||"").join("")||"";
       const parsed=JSON.parse(text.replace(/```json|```/g,"").trim());
