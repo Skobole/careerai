@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -184,7 +185,7 @@ function CoachChat({result,setResult}){
     setThinking(true);
     try{
       const context=`You are a warm, encouraging career coach helping refine job application materials.\n\nCurrent cover letter:\n${result.coverLetter}\n\nRewritten bullets:\n${(result.rewrittenBullets||[]).map((b,i)=>`Bullet ${i+1}: ${b.improved}`).join("\n")}\n\nMissing keywords: ${(result.missingKeywords||[]).join(", ")}\n\nUser request: "${userMsg}"\n\nBe warm, direct and helpful. If rewriting the cover letter, provide the complete new version starting with "Dear Hiring Manager," ending with "Best regards,\n[Your Name]".`;
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:2000,messages:[{role:"user",content:context}]})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:context}]})});
       const data=await response.json();
       const reply=data.content?.map(b=>b.text||"").join("")||"Sorry, something went wrong.";
       setMessages(prev=>[...prev,{role:"assistant",content:reply}]);
@@ -249,7 +250,7 @@ function App(){
       const response=await fetch("/api/chat",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,system:SYSTEM_PROMPT,messages})
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:SYSTEM_PROMPT,messages})
       });
       const data=await response.json();
       if(data.error){throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));}
@@ -398,7 +399,7 @@ function App(){
               </div>
               <div className="card result-section">
                 <div className="section-label">Optimized Resume</div>
-                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your full resume with all bullets replaced by optimized versions — ready to copy and paste</p>
+                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your full resume with all bullets replaced by optimized versions — ready to export</p>
                 <div className="result-box" style={{maxHeight:"400px",overflowY:"auto"}}>
                   {resume
                     ? (() => {
@@ -421,7 +422,55 @@ function App(){
                     });
                     navigator.clipboard.writeText(optimized);
                     setCopiedResume(true);setTimeout(()=>setCopiedResume(false),2000);
-                  }}>{copiedResume?"✓ Copied!":"Copy optimized resume"}</button>
+                  }}>{copiedResume?"✓ Copied!":"Copy to clipboard"}</button>
+
+                  <button className="btn-copy" style={{borderColor:"rgba(0,119,181,0.4)",color:"#0077b5"}} onClick={()=>{
+                    let optimized = resume;
+                    (result.rewrittenBullets||[]).forEach(b => {
+                      if(b.original && b.improved) optimized = optimized.replace(b.original, b.improved);
+                    });
+                    const lines = optimized.split("\n");
+                    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+                    <style>
+                      body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;max-width:750px;margin:40px auto;padding:0 40px;color:#1a1a1a;}
+                      p{margin:4px 0;}
+                      .line{margin:2px 0;}
+                    </style></head><body>`;
+                    lines.forEach(line => {
+                      html += `<p class="line">${line || "&nbsp;"}</p>`;
+                    });
+                    html += `</body></html>`;
+                    const blob = new Blob([html], {type:"application/msword"});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "optimized-resume.doc";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}>Download Word</button>
+
+                  <button className="btn-copy" style={{borderColor:"rgba(239,68,68,0.4)",color:"#ef4444"}} onClick={()=>{
+                    let optimized = resume;
+                    (result.rewrittenBullets||[]).forEach(b => {
+                      if(b.original && b.improved) optimized = optimized.replace(b.original, b.improved);
+                    });
+                    const lines = optimized.split("\n");
+                    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+                    <style>
+                      body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;max-width:750px;margin:40px auto;padding:0 40px;color:#1a1a1a;}
+                      p{margin:2px 0;}
+                      @media print{body{margin:0;padding:20px;}}
+                    </style></head><body>`;
+                    lines.forEach(line => {
+                      html += `<p>${line || "&nbsp;"}</p>`;
+                    });
+                    html += `</body></html>`;
+                    const win = window.open("","_blank");
+                    win.document.write(html);
+                    win.document.close();
+                    win.focus();
+                    setTimeout(()=>win.print(), 500);
+                  }}>Download PDF</button>
                 </div>
               </div>
 
