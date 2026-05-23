@@ -463,6 +463,26 @@ function App(){
   function buildResumeHTML(d, template){
     const sections = (d.sections||[]);
     const sidebarKeys = ["Education","Certifications","Skills","Core Competencies","Technology","Technology & Systems","Additional Highlights","Languages"];
+    const expKeys = ["Professional Experience","Experience","Work Experience"];
+    
+    // Group duplicate section titles together
+    function renderSections(secs, shClass, subClass, bdClass, ulClass, liClass, shExtra=""){
+      let out = "";
+      let i = 0;
+      while(i < secs.length){
+        const title = secs[i].title;
+        // Collect all sections with same title
+        const group = [];
+        while(i < secs.length && secs[i].title === title){ group.push(secs[i]); i++; }
+        out += `<p class="${shClass}">${title}</p>${shExtra}`;
+        group.forEach(s=>{
+          if(s.subtitle) out += `<p class="${subClass}">${s.subtitle}</p>`;
+          if(s.body) out += `<p class="${bdClass}">${s.body}</p>`;
+          if(s.bullets?.length){ out += `<ul class="${ulClass}">`;s.bullets.forEach(b=>{out+=`<li class="${liClass}">${b}</li>`;});out+=`</ul>`;}
+        });
+      }
+      return out;
+    }
     let html = "";
 
     if(template === "classic"){
@@ -475,14 +495,13 @@ function App(){
       .contact{font-size:9pt;text-align:center;color:#555;margin-bottom:10pt;}
       .sh{font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:2px solid #1a1a1a;margin-top:12pt;margin-bottom:4pt;padding-bottom:2pt;}
       .sub{font-size:10pt;font-weight:bold;margin-bottom:1pt;}
-      .date{font-size:9.5pt;color:#666;margin-bottom:2pt;}
       .bd{font-size:10pt;margin-bottom:4pt;}
-      ul{margin:3pt 0 6pt 16pt;}li{font-size:10pt;margin-bottom:3pt;}
+      ul{margin:3pt 0 8pt 16pt;}li{font-size:10pt;margin-bottom:3pt;}
       </style></head><body>
       <p class="name">${d.name}</p>
       <p class="contact">${d.contact}</p>`;
       if(d.summary)html+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
-      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}});
+      html+=renderSections(sections,"sh","sub","bd","","","");
       html+=`</body></html>`;
     }
 
@@ -508,7 +527,7 @@ function App(){
       <p class="name">${d.name}</p>
       <p class="contact">${d.contact}</p>`;
       if(d.summary)html+=`<p class="sh">Executive Profile</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
-      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}});
+      html+=renderSections(sections,"sh","sub","bd","","","<div class='sh-line'></div>");
       html+=`</div></body></html>`;
     }
 
@@ -534,40 +553,38 @@ function App(){
       </div>
       <div class="content">`;
       if(d.summary)html+=`<p class="sh">Professional Summary</p><div class="sh-accent"></div><p class="bd">${d.summary}</p>`;
-      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p><div class="sh-accent"></div>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}});
+      html+=renderSections(sections,"sh","sub","bd","","","<div class='sh-accent'></div>");
       html+=`</div></body></html>`;
     }
 
     else if(template === "twocol"){
       const sidebarSections = sections.filter(s=>sidebarKeys.some(k=>s.title.includes(k)));
       const mainSections = sections.filter(s=>!sidebarKeys.some(k=>s.title.includes(k)));
-      let sidebarHTML = "";
-      sidebarSections.forEach(s=>{sidebarHTML+=`<p class="sh">${s.title}</p>`;if(s.subtitle)sidebarHTML+=`<p class="sub">${s.subtitle}</p>`;if(s.body)sidebarHTML+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){sidebarHTML+=`<ul>`;s.bullets.forEach(b=>{sidebarHTML+=`<li>${b}</li>`;});sidebarHTML+=`</ul>`;}});
+      let sidebarHTML = renderSections(sidebarSections,"sh","sub","bd","","","");
       let mainHTML = "";
       if(d.summary)mainHTML+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
-      mainSections.forEach(s=>{mainHTML+=`<p class="sh">${s.title}</p>`;if(s.subtitle)mainHTML+=`<p class="sub">${s.subtitle}</p>`;if(s.body)mainHTML+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){mainHTML+=`<ul>`;s.bullets.forEach(b=>{mainHTML+=`<li>${b}</li>`;});mainHTML+=`</ul>`;}});
+      mainHTML+=renderSections(mainSections,"sh","sub","bd","","","");
       html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
       *{box-sizing:border-box;margin:0;padding:0;}
       @page{size:8.5in 11in;margin:0;}
       @media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-      body{font-family:Arial,sans-serif;font-size:10pt;color:#1a1a1a;line-height:1.5;display:flex;flex-direction:column;min-height:100vh;}
+      body{font-family:Arial,sans-serif;font-size:10pt;color:#1a1a1a;line-height:1.5;margin:0;padding:0;}
       .header{background:#2c3e50;color:#fff;padding:20pt 0.9in;text-align:center;}
       .name{font-size:22pt;font-weight:bold;color:#fff;margin-bottom:2pt;}
       .contact{font-size:9pt;color:rgba(255,255,255,0.8);}
-      .cols{display:flex;flex:1;}
-      .sidebar{width:30%;background:#f0f4f8;padding:16pt 14pt;border-right:1pt solid #dde3ea;}
-      .main{flex:1;padding:16pt 0.7in 16pt 18pt;}
+      .sidebar{width:30%;background:#f0f4f8;padding:14pt 12pt;vertical-align:top;border-right:2pt solid #dde3ea;}
+      .main{padding:14pt 32pt 14pt 18pt;vertical-align:top;}
       .sh{font-size:9pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#2c3e50;border-bottom:1.5px solid #2c3e50;padding-bottom:2pt;margin-top:12pt;margin-bottom:4pt;}
-      .sidebar .sh{color:#3498db;border-bottom-color:#3498db;}
+      .sidebar .sh{color:#3498db;border-bottom-color:#3498db;font-size:8.5pt;}
       .sub{font-size:9.5pt;font-weight:bold;margin-bottom:1pt;}
-      .bd{font-size:9.5pt;margin-bottom:4pt;}
-      ul{margin:2pt 0 5pt 14pt;}li{font-size:9.5pt;margin-bottom:2pt;}
+      .bd{font-size:9pt;margin-bottom:4pt;}
+      ul{margin:2pt 0 6pt 14pt;}li{font-size:9pt;margin-bottom:2pt;}
       </style></head><body>
       <div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div>
-      <div class="cols">
-        <div class="sidebar">${sidebarHTML}</div>
-        <div class="main">${mainHTML}</div>
-      </div>
+      <table width="100%" style="border-collapse:collapse;"><tr>
+        <td class="sidebar">${sidebarHTML}</td>
+        <td class="main">${mainHTML}</td>
+      </tr></table>
       </body></html>`;
     }
 
@@ -590,7 +607,7 @@ function App(){
       <p class="contact">${d.contact}</p>
       <hr class="divider"/>`;
       if(d.summary)html+=`<p class="sh">Profile</p><p class="bd">${d.summary}</p><hr class="divider"/>`;
-      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="date">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}html+=`<hr class="divider"/>`;});
+      html+=renderSections(sections,"sh","sub","bd","","","");
       html+=`</body></html>`;
     }
 
@@ -616,7 +633,7 @@ function App(){
       </div>
       <div class="content">`;
       if(d.summary)html+=`<p class="sh">Professional Summary</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
-      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}});
+      html+=renderSections(sections,"sh","sub","bd","","","<div class='sh-line'></div>");
       html+=`</div></body></html>`;
     }
 
