@@ -348,40 +348,25 @@ function PaymentModal({onSuccess,onClose}){
   );
 }
 
-const SYSTEM_PROMPT=`You are a world-class ATS optimization expert. Your goal is to maximize the candidate's ATS match score to 95%+ by aggressively and naturally inserting ALL missing keywords throughout the resume.
+const SYSTEM_PROMPT=`You are a senior ATS optimization expert and career coach. Analyze the resume against the job description.
 
-Return ONLY a valid JSON object (no preamble, no markdown, no backticks) with this exact structure:
+Return ONLY a valid JSON object (no preamble, no markdown, no backticks):
 {
-  "atsScore": <integer 0-100 — score BEFORE optimization>,
+  "atsScore": <integer 0-100>,
   "foundKeywords": [<max 12 keywords found in both>],
   "missingKeywords": [<max 10 keywords missing, highest impact first>],
   "formattingWarnings": [<ATS issues, empty array if none>],
-  "rewrittenBullets": [{"original":"<exact bullet from resume>","improved":"<rewritten with ALL missing keywords naturally inserted>"}],
+  "rewrittenBullets": [{"original":"<exact bullet>","improved":"<rewritten with missing keywords>"}],
   "coverLetter": "<3-4 paragraphs. Dear Hiring Manager, ... Best regards, [Your Name]>",
   "resumeData": {
-    "name": "<candidate full name — copy exactly>",
-    "contact": "<city, phone, email on one line — copy exactly>",
-    "summary": "<REWRITE the summary to naturally include ALL missing keywords while keeping the candidate's voice and experience>",
-    "industry": "<industry type>",
-    "sections": [
-      {
-        "title": "<section name — copy exactly>",
-        "subtitle": "<job title and company and dates — copy exactly>",
-        "body": "<non-bullet body text — rewrite to include missing keywords if applicable>",
-        "bullets": ["<rewrite EVERY bullet in this section to naturally include missing keywords where relevant>"]
-      }
-    ]
+    "name": "<copy exactly>",
+    "contact": "<copy exactly>",
+    "summary": "<rewrite to include ALL missing keywords naturally>",
+    "industry": "<industry>",
+    "sections": [{"title":"<copy exactly>","subtitle":"<copy exactly>","body":"<copy or null>","bullets":["<rewrite each bullet to include missing keywords where they fit naturally>"]}]
   }
 }
-
-CRITICAL RULES:
-1. NEVER change name, contact info, job titles, company names, or dates
-2. Rewrite the summary to include ALL missing keywords naturally
-3. Rewrite ALL bullets across ALL sections — not just 3 — to include missing keywords where they naturally fit
-4. Every missing keyword must appear at least once in the final resumeData
-5. Keep the candidate's authentic voice — do not make claims they cannot support
-6. rewrittenBullets should show the 5 most impactful rewrites for the user to review
-7. atsScore reflects the ORIGINAL score before optimization — resumeData contains the fully optimized version`;
+RULES: Never change name/contact/titles/companies/dates. Rewrite summary and bullets to include ALL missing keywords. Show 5 most impactful rewrittenBullets. Accurate atsScore.`;
 
 function App(){
   const [step,setStep]=useState("input");
