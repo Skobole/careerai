@@ -330,14 +330,14 @@ function PaymentModal({onSuccess,onClose}){
               ))}
             </div>
             <div className="payment-price">
-              <div className="payment-amount">$15</div>
+              <div className="payment-amount">$20</div>
               <div className="payment-period">/month · one-time · no subscription · no cancel button</div>
             </div>
             {loading&&<div style={{textAlign:"center",padding:"20px",color:"#aaa"}}>Loading payment form...</div>}
             <div id="payment-element"/>
             {error&&<div className="payment-error">{error}</div>}
             <button className="btn" onClick={handlePay} disabled={paying||loading} style={{marginTop:"16px"}}>
-              {paying?"Processing...":loading?"Please wait...":"Pay $15 — Get Results →"}
+              {paying?"Processing...":loading?"Please wait...":"Pay $20 — Get Results →"}
             </button>
             <button className="btn-ghost" onClick={onClose} style={{marginTop:"8px"}}>Cancel</button>
             <div className="payment-note" style={{textAlign:"center",marginTop:"12px"}}>Secured by Stripe · Apple Pay & Google Pay supported</div>
@@ -617,7 +617,7 @@ function App(){
           <h1>Beat the <span>Algorithm.</span><br/>Land the Job.</h1>
           <p className="subtitle-text">Most resumes never reach a human. We fix that — with ATS optimization, AI interview prep with daily updated questions, job recommendations, and agents working for you 24/7.</p>
           <div className="price-row">
-            <div className="price-tag"><strong>$15</strong>/month · No subscription. No cancel button. Ever.</div>
+            <div className="price-tag"><strong>$20</strong>/month · No subscription. No cancel button. Ever.</div>
           </div>
           <div className="feature-pills">
             <span className="feature-pill">✓ ATS Score</span>
@@ -747,114 +747,104 @@ function App(){
                           <div style={{fontSize:"6px",color:"#666",marginTop:"1px"}}>New York · (555) 123-4567 · john@email.com</div>
                           <div style={{borderBottom:"1.5px solid #1a1a1a",marginTop:"4px"}}/>
                         </div>
-                        <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#1a1a1a",marginBottom:"2px"}}>Summary</div>
-                        <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3",marginBottom:"4px"}}>Results-driven leader with 10+ years driving operational excellence.</div>
+                        <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",marginBottom:"2px"}}>Professional Summary</div>
+                        <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3",marginBottom:"4px"}}>Results-driven leader with 10+ years driving operational excellence and team growth.</div>
                         <div style={{borderBottom:"1.5px solid #1a1a1a",marginBottom:"3px"}}/>
                         <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",marginBottom:"2px"}}>Experience</div>
-                        <div style={{fontSize:"6.5px",fontWeight:"bold"}}>Senior Manager · Acme Corp</div>
-                        <div style={{fontSize:"5.5px",color:"#888",marginBottom:"1px"}}>2020 – Present</div>
-                        <div style={{fontSize:"6px",color:"#444"}}>· Led 50+ team, increased revenue 35%</div>
-                        <div style={{fontSize:"6px",color:"#444"}}>· Managed $10M annual budget</div>
+                        <div style={{fontSize:"6.5px",fontWeight:"bold"}}>Senior Manager · Acme Corp · 2020–Present</div>
+                        <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3"}}>· Led team of 50+, increased revenue 35%</div>
+                        <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3"}}>· Managed $10M annual budget</div>
                       </div>
                     )},
-                    {id:"executive",name:"Executive",desc:"Serif · Authoritative · C-suite & Director",preview:(
-                      <div style={{fontFamily:"Georgia,serif",background:"#fff",height:"160px",display:"flex"}}>
-                        <div style={{width:"5px",background:"#1a1a6e",flexShrink:0}}/>
-                        <div style={{padding:"10px 12px",flex:1}}>
+                    {id:"executive",name:"Executive",desc:"Serif font · Authoritative · C-suite",preview:(
+                      <div style={{fontFamily:"Georgia,serif",background:"#fff",height:"160px",position:"relative"}}>
+                        <div style={{position:"absolute",left:0,top:0,bottom:0,width:"4px",background:"#1a1a6e"}}/>
+                        <div style={{padding:"10px 12px 10px 16px"}}>
                           <div style={{marginBottom:"5px"}}>
                             <div style={{fontSize:"13px",fontWeight:"bold",color:"#1a1a6e"}}>John Smith</div>
-                            <div style={{fontSize:"7px",color:"#555",fontStyle:"italic"}}>Chief Operations Officer</div>
+                            <div style={{fontSize:"6.5px",color:"#555",fontStyle:"italic",marginTop:"1px"}}>Chief Operations Officer</div>
                             <div style={{fontSize:"6px",color:"#888",marginTop:"1px"}}>New York · (555) 123-4567</div>
                           </div>
                           <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#1a1a6e",borderBottom:"1px solid #1a1a6e",paddingBottom:"1px",marginBottom:"3px"}}>Executive Profile</div>
-                          <div style={{fontSize:"6px",color:"#333",lineHeight:"1.4",marginBottom:"4px",fontStyle:"italic"}}>"Visionary leader with $500M P&L accountability and global team management."</div>
-                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#1a1a6e",borderBottom:"1px solid #1a1a6e",paddingBottom:"1px",marginBottom:"3px"}}>Experience</div>
+                          <div style={{fontSize:"6px",color:"#333",lineHeight:"1.4",marginBottom:"4px",fontStyle:"italic"}}>"C-suite leader with $500M P&L accountability across 12 global divisions."</div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#1a1a6e",borderBottom:"1px solid #1a1a6e",paddingBottom:"1px",marginBottom:"2px"}}>Experience</div>
                           <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#1a1a1a"}}>COO · Fortune 500 Corp · 2018–Now</div>
-                          <div style={{fontSize:"6px",color:"#444"}}>· Directed 12 divisions, 2,000+ staff</div>
+                          <div style={{fontSize:"6px",color:"#444"}}>· Directed 12 divisions, 2,000+ staff worldwide</div>
                         </div>
                       </div>
                     )},
-                    {id:"modern",name:"Modern",desc:"Bold color header · Creative & Marketing",preview:(
+                    {id:"modern",name:"Modern",desc:"Color header + skill tags · Creative roles",preview:(
                       <div style={{fontFamily:"Arial,sans-serif",background:"#fff"}}>
-                        <div style={{background:"linear-gradient(135deg,#ff8c32,#ff6b6b)",padding:"10px 12px"}}>
-                          <div style={{fontSize:"12px",fontWeight:"bold",color:"#fff",letterSpacing:"0.5px"}}>JOHN SMITH</div>
+                        <div style={{background:"#ff8c32",padding:"10px 12px"}}>
+                          <div style={{fontSize:"12px",fontWeight:"bold",color:"#fff"}}>JOHN SMITH</div>
                           <div style={{fontSize:"6.5px",color:"rgba(255,255,255,0.9)",marginTop:"1px"}}>Marketing Director · New York</div>
-                          <div style={{display:"flex",gap:"8px",marginTop:"4px"}}>
-                            <div style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Branding</div>
-                            <div style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Digital</div>
-                            <div style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Strategy</div>
+                          <div style={{display:"flex",gap:"5px",marginTop:"5px",flexWrap:"wrap"}}>
+                            <span style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Branding</span>
+                            <span style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Digital</span>
+                            <span style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Strategy</span>
                           </div>
                         </div>
                         <div style={{padding:"7px 12px"}}>
-                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#ff8c32",marginBottom:"2px"}}>Experience</div>
-                          <div style={{width:"30px",height:"2px",background:"#ff8c32",marginBottom:"4px"}}/>
-                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#1a1a1a"}}>Marketing Director · BrandCo</div>
+                          <div style={{borderLeft:"3px solid #ff8c32",paddingLeft:"6px",marginBottom:"4px"}}>
+                            <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#ff8c32"}}>Experience</div>
+                          </div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#1a1a1a"}}>Marketing Director · BrandCo · 2020–Now</div>
                           <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3"}}>· Grew brand awareness 60% in 12 months</div>
-                          <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3"}}>· Led team of 15 creatives globally</div>
+                          <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3"}}>· Managed $5M marketing budget</div>
                         </div>
                       </div>
                     )},
-                    {id:"twocol",name:"Two-Column",desc:"Sidebar with skills · Maximizes space",preview:(
+                    {id:"twocol",name:"Two-Column",desc:"Dark sidebar + skills list · Max content",preview:(
                       <div style={{fontFamily:"Arial,sans-serif",display:"flex",height:"160px",background:"#fff"}}>
-                        <div style={{width:"36%",background:"#1e3a5f",padding:"8px 7px",color:"#fff",flexShrink:0}}>
-                          <div style={{width:"28px",height:"28px",borderRadius:"50%",background:"rgba(255,255,255,0.2)",margin:"0 auto 5px",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                            <div style={{fontSize:"9px",fontWeight:"bold",color:"#fff"}}>JS</div>
-                          </div>
-                          <div style={{fontSize:"7px",fontWeight:"bold",color:"#fff",textAlign:"center",marginBottom:"1px"}}>JOHN</div>
-                          <div style={{fontSize:"7px",fontWeight:"bold",color:"#fff",textAlign:"center",marginBottom:"5px"}}>SMITH</div>
-                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.6)",textAlign:"center",marginBottom:"5px"}}>(555) 123-4567</div>
-                          <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"rgba(255,255,255,0.5)",borderBottom:"1px solid rgba(255,255,255,0.2)",paddingBottom:"1px",marginBottom:"3px"}}>Skills</div>
-                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.8)",lineHeight:"1.6"}}>▸ Leadership<br/>▸ Operations<br/>▸ P&L Mgmt<br/>▸ Strategy</div>
+                        <div style={{width:"36%",background:"#2c3e50",padding:"8px 7px",color:"#fff",flexShrink:0}}>
+                          <div style={{fontSize:"8px",fontWeight:"bold",color:"#fff",marginBottom:"1px",textAlign:"center"}}>JOHN</div>
+                          <div style={{fontSize:"8px",fontWeight:"bold",color:"#3498db",textAlign:"center",marginBottom:"5px"}}>SMITH</div>
+                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.6)",textAlign:"center",marginBottom:"6px"}}>(555) 123-4567</div>
+                          <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#3498db",borderBottom:"1px solid #3498db",paddingBottom:"1px",marginBottom:"3px"}}>Skills</div>
+                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.85)",lineHeight:"1.7"}}>· Leadership<br/>· Operations<br/>· P&L Mgmt<br/>· Strategy</div>
+                          <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#3498db",borderBottom:"1px solid #3498db",paddingBottom:"1px",margin:"5px 0 3px"}}>Education</div>
+                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.85)"}}>MBA · Columbia</div>
                         </div>
                         <div style={{flex:1,padding:"8px 9px"}}>
-                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#1e3a5f",borderBottom:"1.5px solid #1e3a5f",paddingBottom:"1px",marginBottom:"3px"}}>Experience</div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#2c3e50",borderBottom:"1.5px solid #2c3e50",paddingBottom:"1px",marginBottom:"3px"}}>Experience</div>
                           <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#1a1a1a"}}>Senior Manager</div>
                           <div style={{fontSize:"5.5px",color:"#888"}}>Acme Corp · 2020–2025</div>
-                          <div style={{fontSize:"5.5px",color:"#444",lineHeight:"1.3",marginTop:"1px"}}>· Led 50+ associates<br/>· Revenue up 35%</div>
-                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#1e3a5f",borderBottom:"1.5px solid #1e3a5f",paddingBottom:"1px",margin:"4px 0 2px"}}>Education</div>
-                          <div style={{fontSize:"6px",color:"#333"}}>MBA · Columbia University</div>
+                          <div style={{fontSize:"5.5px",color:"#444",lineHeight:"1.3",marginTop:"2px"}}>· Led team of 50+ associates<br/>· Increased revenue by 35%<br/>· Managed $10M budget</div>
                         </div>
                       </div>
                     )},
-                    {id:"minimal",name:"Minimal",desc:"Ultra clean whitespace · Any industry",preview:(
+                    {id:"minimal",name:"Minimal",desc:"Ultra clean whitespace · Luxury brands",preview:(
                       <div style={{padding:"12px 14px",fontFamily:"'Helvetica Neue',Arial,sans-serif",background:"#fff"}}>
-                        <div style={{marginBottom:"8px"}}>
-                          <div style={{fontSize:"13px",fontWeight:"300",color:"#1a1a1a",letterSpacing:"4px",textTransform:"uppercase"}}>John Smith</div>
+                        <div style={{marginBottom:"6px"}}>
+                          <div style={{fontSize:"12px",fontWeight:"300",color:"#1a1a1a",letterSpacing:"4px",textTransform:"uppercase"}}>John Smith</div>
                           <div style={{fontSize:"6px",color:"#bbb",letterSpacing:"1.5px",marginTop:"2px",textTransform:"uppercase"}}>Senior Manager · New York</div>
                         </div>
-                        <div style={{display:"flex",gap:"12px",marginBottom:"6px"}}>
-                          <div style={{fontSize:"5.5px",color:"#999"}}>📍 New York</div>
-                          <div style={{fontSize:"5.5px",color:"#999"}}>📞 (555) 123-4567</div>
-                          <div style={{fontSize:"5.5px",color:"#999"}}>✉ john@email.com</div>
-                        </div>
-                        <div style={{borderTop:"0.5px solid #e0e0e0",margin:"5px 0"}}/>
+                        <div style={{borderTop:"0.5px solid #ddd",margin:"5px 0"}}/>
                         <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"2.5px",color:"#bbb",marginBottom:"3px"}}>Experience</div>
-                        <div style={{fontSize:"7px",fontWeight:"500",color:"#1a1a1a"}}>Senior Manager</div>
-                        <div style={{fontSize:"6px",color:"#999",marginBottom:"2px"}}>Acme Corporation · 2020 – 2025</div>
-                        <div style={{fontSize:"6px",color:"#555",lineHeight:"1.5"}}>Led cross-functional teams and delivered 35% revenue growth through strategic initiatives.</div>
-                        <div style={{borderTop:"0.5px solid #e0e0e0",margin:"5px 0"}}/>
+                        <div style={{fontSize:"7px",color:"#1a1a1a",fontWeight:"400"}}>Senior Manager — Acme Corporation</div>
+                        <div style={{fontSize:"6px",color:"#aaa",marginBottom:"3px",letterSpacing:"0.5px"}}>2020 – 2025  ·  New York</div>
+                        <div style={{fontSize:"6px",color:"#555",lineHeight:"1.6"}}>Led cross-functional teams delivering 35% revenue growth. Managed $10M budget and 50+ staff.</div>
+                        <div style={{borderTop:"0.5px solid #ddd",margin:"5px 0"}}/>
+                        <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"2.5px",color:"#bbb",marginBottom:"2px"}}>Education</div>
+                        <div style={{fontSize:"6.5px",color:"#333"}}>MBA · Columbia University · 2015</div>
                       </div>
                     )},
                     {id:"darkpro",name:"Dark Pro",desc:"Dark theme · Tech · Engineering · Design",preview:(
-                      <div style={{fontFamily:"'Courier New',monospace",background:"#0d1117",height:"160px"}}>
-                        <div style={{background:"#161b22",padding:"8px 12px",borderBottom:"1px solid #30363d"}}>
-                          <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
-                            <div style={{width:"20px",height:"20px",borderRadius:"50%",background:"linear-gradient(135deg,#58a6ff,#bc8cff)",flexShrink:0}}/>
-                            <div>
-                              <div style={{fontSize:"9px",fontWeight:"bold",color:"#e6edf3",letterSpacing:"0.5px"}}>John Smith</div>
-                              <div style={{fontSize:"5.5px",color:"#58a6ff"}}>Senior Engineer · Remote</div>
-                            </div>
+                      <div style={{fontFamily:"Arial,sans-serif",background:"#0d1117",height:"160px"}}>
+                        <div style={{background:"#161b22",padding:"8px 12px",borderBottom:"2px solid #e94560"}}>
+                          <div style={{fontSize:"11px",fontWeight:"bold",color:"#e6edf3",letterSpacing:"1px"}}>JOHN SMITH</div>
+                          <div style={{fontSize:"6px",color:"#e94560",marginTop:"1px",letterSpacing:"0.5px"}}>SENIOR ENGINEER · REMOTE</div>
+                          <div style={{display:"flex",gap:"4px",marginTop:"4px"}}>
+                            <span style={{background:"rgba(233,69,96,0.15)",border:"1px solid rgba(233,69,96,0.4)",borderRadius:"3px",padding:"1px 5px",fontSize:"5px",color:"#e94560"}}>Python</span>
+                            <span style={{background:"rgba(233,69,96,0.15)",border:"1px solid rgba(233,69,96,0.4)",borderRadius:"3px",padding:"1px 5px",fontSize:"5px",color:"#e94560"}}>React</span>
+                            <span style={{background:"rgba(233,69,96,0.15)",border:"1px solid rgba(233,69,96,0.4)",borderRadius:"3px",padding:"1px 5px",fontSize:"5px",color:"#e94560"}}>AWS</span>
                           </div>
                         </div>
                         <div style={{padding:"7px 12px"}}>
-                          <div style={{display:"flex",gap:"4px",marginBottom:"5px",flexWrap:"wrap"}}>
-                            <div style={{background:"rgba(88,166,255,0.15)",border:"1px solid rgba(88,166,255,0.3)",borderRadius:"10px",padding:"1px 5px",fontSize:"5px",color:"#58a6ff"}}>Python</div>
-                            <div style={{background:"rgba(188,140,255,0.15)",border:"1px solid rgba(188,140,255,0.3)",borderRadius:"10px",padding:"1px 5px",fontSize:"5px",color:"#bc8cff"}}>React</div>
-                            <div style={{background:"rgba(63,185,80,0.15)",border:"1px solid rgba(63,185,80,0.3)",borderRadius:"10px",padding:"1px 5px",fontSize:"5px",color:"#3fb950"}}>AWS</div>
-                          </div>
-                          <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#58a6ff",marginBottom:"2px"}}>// Experience</div>
-                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#e6edf3"}}>Senior Engineer · TechCorp</div>
-                          <div style={{fontSize:"5.5px",color:"#8b949e",lineHeight:"1.4"}}>· Built systems serving 10M+ daily users<br/>· Led cloud migration saving $2M/year</div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#e94560",marginBottom:"2px"}}>Experience</div>
+                          <div style={{width:"20px",height:"1px",background:"#e94560",marginBottom:"3px"}}/>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#e6edf3"}}>Senior Engineer · TechCorp · 2020–Now</div>
+                          <div style={{fontSize:"6px",color:"#8b949e",lineHeight:"1.4",marginTop:"1px"}}>· Built systems serving 10M+ daily users<br/>· Led cloud migration saving $2M/year</div>
                         </div>
                       </div>
                     )},
