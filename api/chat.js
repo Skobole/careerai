@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
   // Input size limit — max 50KB
   const bodySize = JSON.stringify(req.body).length;
-  if (bodySize > 50000) {
+  if (bodySize > 500000) {
     return res.status(413).json({ error: 'Input too large. Please shorten your resume or job description.' });
   }
 
