@@ -76,20 +76,16 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 .export-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center;}
 .export-note{font-size:0.75rem;color:rgba(26,26,26,0.38);margin-top:8px;}
 /* Template picker */
-.template-section{margin-top:24px;}
-.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
 @media(max-width:600px){.template-grid{grid-template-columns:repeat(2,1fr);}}
-.template-card{border:2px solid rgba(255,140,50,0.15);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.2s;background:#fff;}
+.template-card{border:2px solid rgba(0,0,0,0.08);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.2s;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
 .template-card:hover{border-color:rgba(255,140,50,0.5);transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,120,40,0.12);}
 .template-card.selected{border-color:#e8192c;box-shadow:0 6px 20px rgba(232,25,44,0.2);}
-.template-preview{height:110px;padding:10px;position:relative;overflow:hidden;}
-.template-label{padding:8px 12px;border-top:1px solid rgba(0,0,0,0.06);}
-.template-label p{margin:0;font-size:12px;}
-.template-name{font-weight:500;color:#1a1a1a;}
-.template-desc{color:rgba(26,26,26,0.45);font-size:11px;}
-.tl{height:7px;border-radius:2px;background:rgba(0,0,0,0.1);margin-bottom:4px;}
-.tl.w50{width:50%}.tl.w60{width:60%}.tl.w70{width:70%}.tl.w80{width:80%}.tl.w85{width:85%}.tl.w90{width:90%}.tl.w100{width:100%}
-.tl.h5{height:5px}.tl.h8{height:8px}.tl.h10{height:10px}
+.template-preview{height:160px;position:relative;overflow:hidden;background:#fff;}
+.template-label{padding:8px 12px;border-top:1px solid rgba(0,0,0,0.07);}
+.template-label p{margin:0;}
+.template-name{font-weight:600;color:#1a1a1a;font-size:12px;}
+.template-desc{color:rgba(26,26,26,0.45);font-size:10px;}
 
 .loading-wrap{text-align:center;padding:70px 24px;}
 .spinner{width:44px;height:44px;border:3px solid rgba(255,140,50,0.2);border-top-color:#ff8c32;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 24px;}
@@ -744,71 +740,122 @@ function App(){
                 <div className="section-label" style={{marginTop:"20px"}}>Choose Template</div>
                 <div className="template-grid">
                   {[
-                    {id:"classic",name:"Classic",desc:"Clean · Single column",preview:(
-                      <div style={{padding:"10px"}}>
-                        <div className="tl h10 w60" style={{marginBottom:"4px"}}/>
-                        <div className="tl h5 w40" style={{marginBottom:"8px"}}/>
-                        <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
-                        <div className="tl h5 w85" style={{marginBottom:"3px"}}/>
-                        <div className="tl h5 w90"/>
+                    {id:"classic",name:"Classic",desc:"Clean · Traditional · All industries",preview:(
+                      <div style={{padding:"10px 12px",fontFamily:"Arial,sans-serif",background:"#fff"}}>
+                        <div style={{textAlign:"center",marginBottom:"5px"}}>
+                          <div style={{fontSize:"11px",fontWeight:"bold",color:"#1a1a1a",letterSpacing:"1px"}}>JOHN SMITH</div>
+                          <div style={{fontSize:"6px",color:"#666",marginTop:"1px"}}>New York · (555) 123-4567 · john@email.com</div>
+                          <div style={{borderBottom:"1.5px solid #1a1a1a",marginTop:"4px"}}/>
+                        </div>
+                        <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#1a1a1a",marginBottom:"2px"}}>Summary</div>
+                        <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3",marginBottom:"4px"}}>Results-driven leader with 10+ years driving operational excellence.</div>
+                        <div style={{borderBottom:"1.5px solid #1a1a1a",marginBottom:"3px"}}/>
+                        <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",marginBottom:"2px"}}>Experience</div>
+                        <div style={{fontSize:"6.5px",fontWeight:"bold"}}>Senior Manager · Acme Corp</div>
+                        <div style={{fontSize:"5.5px",color:"#888",marginBottom:"1px"}}>2020 – Present</div>
+                        <div style={{fontSize:"6px",color:"#444"}}>· Led 50+ team, increased revenue 35%</div>
+                        <div style={{fontSize:"6px",color:"#444"}}>· Managed $10M annual budget</div>
                       </div>
                     )},
-                    {id:"executive",name:"Executive",desc:"Bold · Senior roles",preview:(
-                      <div style={{padding:"10px",borderLeft:"4px solid #1a1a6e"}}>
-                        <div className="tl h10 w65" style={{marginBottom:"4px",background:"#1a1a6e"}}/>
-                        <div className="tl h5 w45" style={{marginBottom:"8px"}}/>
-                        <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
-                        <div className="tl h5 w80" style={{marginBottom:"3px"}}/>
-                        <div className="tl h5 w90"/>
-                      </div>
-                    )},
-                    {id:"modern",name:"Modern",desc:"Accent header · Creative",preview:(
-                      <div>
-                        <div style={{background:"#ff8c32",padding:"8px 10px",marginBottom:"8px"}}>
-                          <div className="tl h8 w55" style={{marginBottom:"3px",background:"rgba(255,255,255,0.5)"}}/>
-                          <div className="tl h5 w35" style={{background:"rgba(255,255,255,0.35)"}}/>
-                        </div>
-                        <div style={{padding:"0 10px"}}>
-                          <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
-                          <div className="tl h5 w85" style={{marginBottom:"3px"}}/>
-                          <div className="tl h5 w90"/>
-                        </div>
-                      </div>
-                    )},
-                    {id:"twocol",name:"Two-column",desc:"Sidebar · Maximizes space",preview:(
-                      <div style={{display:"flex",gap:"8px",padding:"10px"}}>
-                        <div style={{width:"40%",borderRight:"1px solid rgba(0,0,0,0.1)",paddingRight:"6px"}}>
-                          <div className="tl h8 w100" style={{marginBottom:"4px"}}/>
-                          <div className="tl h5 w80" style={{marginBottom:"3px"}}/>
-                          <div className="tl h5 w90" style={{marginBottom:"3px"}}/>
-                          <div className="tl h5 w70"/>
-                        </div>
-                        <div style={{flex:1}}>
-                          <div className="tl h8 w100" style={{marginBottom:"4px"}}/>
-                          <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
-                          <div className="tl h5 w85" style={{marginBottom:"3px"}}/>
-                          <div className="tl h5 w90"/>
+                    {id:"executive",name:"Executive",desc:"Serif · Authoritative · C-suite & Director",preview:(
+                      <div style={{fontFamily:"Georgia,serif",background:"#fff",height:"160px",display:"flex"}}>
+                        <div style={{width:"5px",background:"#1a1a6e",flexShrink:0}}/>
+                        <div style={{padding:"10px 12px",flex:1}}>
+                          <div style={{marginBottom:"5px"}}>
+                            <div style={{fontSize:"13px",fontWeight:"bold",color:"#1a1a6e"}}>John Smith</div>
+                            <div style={{fontSize:"7px",color:"#555",fontStyle:"italic"}}>Chief Operations Officer</div>
+                            <div style={{fontSize:"6px",color:"#888",marginTop:"1px"}}>New York · (555) 123-4567</div>
+                          </div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#1a1a6e",borderBottom:"1px solid #1a1a6e",paddingBottom:"1px",marginBottom:"3px"}}>Executive Profile</div>
+                          <div style={{fontSize:"6px",color:"#333",lineHeight:"1.4",marginBottom:"4px",fontStyle:"italic"}}>"Visionary leader with $500M P&L accountability and global team management."</div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#1a1a6e",borderBottom:"1px solid #1a1a6e",paddingBottom:"1px",marginBottom:"3px"}}>Experience</div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#1a1a1a"}}>COO · Fortune 500 Corp · 2018–Now</div>
+                          <div style={{fontSize:"6px",color:"#444"}}>· Directed 12 divisions, 2,000+ staff</div>
                         </div>
                       </div>
                     )},
-                    {id:"minimal",name:"Minimal",desc:"Ultra clean · Any industry",preview:(
-                      <div style={{padding:"10px",textAlign:"center"}}>
-                        <div className="tl h8 w55" style={{margin:"0 auto 4px",background:"rgba(0,0,0,0.12)"}}/>
-                        <div className="tl h5 w35" style={{margin:"0 auto 8px"}}/>
-                        <div style={{borderTop:"0.5px solid rgba(0,0,0,0.15)",paddingTop:"6px",textAlign:"left"}}>
-                          <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
-                          <div className="tl h5 w80" style={{marginBottom:"3px"}}/>
-                          <div className="tl h5 w90"/>
+                    {id:"modern",name:"Modern",desc:"Bold color header · Creative & Marketing",preview:(
+                      <div style={{fontFamily:"Arial,sans-serif",background:"#fff"}}>
+                        <div style={{background:"linear-gradient(135deg,#ff8c32,#ff6b6b)",padding:"10px 12px"}}>
+                          <div style={{fontSize:"12px",fontWeight:"bold",color:"#fff",letterSpacing:"0.5px"}}>JOHN SMITH</div>
+                          <div style={{fontSize:"6.5px",color:"rgba(255,255,255,0.9)",marginTop:"1px"}}>Marketing Director · New York</div>
+                          <div style={{display:"flex",gap:"8px",marginTop:"4px"}}>
+                            <div style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Branding</div>
+                            <div style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Digital</div>
+                            <div style={{background:"rgba(255,255,255,0.25)",borderRadius:"10px",padding:"1px 6px",fontSize:"5.5px",color:"#fff"}}>Strategy</div>
+                          </div>
+                        </div>
+                        <div style={{padding:"7px 12px"}}>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#ff8c32",marginBottom:"2px"}}>Experience</div>
+                          <div style={{width:"30px",height:"2px",background:"#ff8c32",marginBottom:"4px"}}/>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#1a1a1a"}}>Marketing Director · BrandCo</div>
+                          <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3"}}>· Grew brand awareness 60% in 12 months</div>
+                          <div style={{fontSize:"6px",color:"#444",lineHeight:"1.3"}}>· Led team of 15 creatives globally</div>
                         </div>
                       </div>
                     )},
-                    {id:"darkpro",name:"Dark Pro",desc:"Bold · Tech · Design",preview:(
-                      <div style={{background:"#1a1a2e",height:"100%",margin:"-10px",padding:"10px"}}>
-                        <div className="tl h8 w60" style={{marginBottom:"4px",background:"rgba(255,255,255,0.3)"}}/>
-                        <div className="tl h5 w40" style={{marginBottom:"8px",background:"rgba(255,255,255,0.15)"}}/>
-                        <div className="tl h5 w100" style={{marginBottom:"3px",background:"rgba(255,255,255,0.15)"}}/>
-                        <div className="tl h5 w85" style={{marginBottom:"3px",background:"rgba(255,255,255,0.15)"}}/>
-                        <div className="tl h5 w90" style={{background:"rgba(255,255,255,0.15)"}}/>
+                    {id:"twocol",name:"Two-Column",desc:"Sidebar with skills · Maximizes space",preview:(
+                      <div style={{fontFamily:"Arial,sans-serif",display:"flex",height:"160px",background:"#fff"}}>
+                        <div style={{width:"36%",background:"#1e3a5f",padding:"8px 7px",color:"#fff",flexShrink:0}}>
+                          <div style={{width:"28px",height:"28px",borderRadius:"50%",background:"rgba(255,255,255,0.2)",margin:"0 auto 5px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                            <div style={{fontSize:"9px",fontWeight:"bold",color:"#fff"}}>JS</div>
+                          </div>
+                          <div style={{fontSize:"7px",fontWeight:"bold",color:"#fff",textAlign:"center",marginBottom:"1px"}}>JOHN</div>
+                          <div style={{fontSize:"7px",fontWeight:"bold",color:"#fff",textAlign:"center",marginBottom:"5px"}}>SMITH</div>
+                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.6)",textAlign:"center",marginBottom:"5px"}}>(555) 123-4567</div>
+                          <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"rgba(255,255,255,0.5)",borderBottom:"1px solid rgba(255,255,255,0.2)",paddingBottom:"1px",marginBottom:"3px"}}>Skills</div>
+                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.8)",lineHeight:"1.6"}}>▸ Leadership<br/>▸ Operations<br/>▸ P&L Mgmt<br/>▸ Strategy</div>
+                        </div>
+                        <div style={{flex:1,padding:"8px 9px"}}>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#1e3a5f",borderBottom:"1.5px solid #1e3a5f",paddingBottom:"1px",marginBottom:"3px"}}>Experience</div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#1a1a1a"}}>Senior Manager</div>
+                          <div style={{fontSize:"5.5px",color:"#888"}}>Acme Corp · 2020–2025</div>
+                          <div style={{fontSize:"5.5px",color:"#444",lineHeight:"1.3",marginTop:"1px"}}>· Led 50+ associates<br/>· Revenue up 35%</div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#1e3a5f",borderBottom:"1.5px solid #1e3a5f",paddingBottom:"1px",margin:"4px 0 2px"}}>Education</div>
+                          <div style={{fontSize:"6px",color:"#333"}}>MBA · Columbia University</div>
+                        </div>
+                      </div>
+                    )},
+                    {id:"minimal",name:"Minimal",desc:"Ultra clean whitespace · Any industry",preview:(
+                      <div style={{padding:"12px 14px",fontFamily:"'Helvetica Neue',Arial,sans-serif",background:"#fff"}}>
+                        <div style={{marginBottom:"8px"}}>
+                          <div style={{fontSize:"13px",fontWeight:"300",color:"#1a1a1a",letterSpacing:"4px",textTransform:"uppercase"}}>John Smith</div>
+                          <div style={{fontSize:"6px",color:"#bbb",letterSpacing:"1.5px",marginTop:"2px",textTransform:"uppercase"}}>Senior Manager · New York</div>
+                        </div>
+                        <div style={{display:"flex",gap:"12px",marginBottom:"6px"}}>
+                          <div style={{fontSize:"5.5px",color:"#999"}}>📍 New York</div>
+                          <div style={{fontSize:"5.5px",color:"#999"}}>📞 (555) 123-4567</div>
+                          <div style={{fontSize:"5.5px",color:"#999"}}>✉ john@email.com</div>
+                        </div>
+                        <div style={{borderTop:"0.5px solid #e0e0e0",margin:"5px 0"}}/>
+                        <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"2.5px",color:"#bbb",marginBottom:"3px"}}>Experience</div>
+                        <div style={{fontSize:"7px",fontWeight:"500",color:"#1a1a1a"}}>Senior Manager</div>
+                        <div style={{fontSize:"6px",color:"#999",marginBottom:"2px"}}>Acme Corporation · 2020 – 2025</div>
+                        <div style={{fontSize:"6px",color:"#555",lineHeight:"1.5"}}>Led cross-functional teams and delivered 35% revenue growth through strategic initiatives.</div>
+                        <div style={{borderTop:"0.5px solid #e0e0e0",margin:"5px 0"}}/>
+                      </div>
+                    )},
+                    {id:"darkpro",name:"Dark Pro",desc:"Dark theme · Tech · Engineering · Design",preview:(
+                      <div style={{fontFamily:"'Courier New',monospace",background:"#0d1117",height:"160px"}}>
+                        <div style={{background:"#161b22",padding:"8px 12px",borderBottom:"1px solid #30363d"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
+                            <div style={{width:"20px",height:"20px",borderRadius:"50%",background:"linear-gradient(135deg,#58a6ff,#bc8cff)",flexShrink:0}}/>
+                            <div>
+                              <div style={{fontSize:"9px",fontWeight:"bold",color:"#e6edf3",letterSpacing:"0.5px"}}>John Smith</div>
+                              <div style={{fontSize:"5.5px",color:"#58a6ff"}}>Senior Engineer · Remote</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{padding:"7px 12px"}}>
+                          <div style={{display:"flex",gap:"4px",marginBottom:"5px",flexWrap:"wrap"}}>
+                            <div style={{background:"rgba(88,166,255,0.15)",border:"1px solid rgba(88,166,255,0.3)",borderRadius:"10px",padding:"1px 5px",fontSize:"5px",color:"#58a6ff"}}>Python</div>
+                            <div style={{background:"rgba(188,140,255,0.15)",border:"1px solid rgba(188,140,255,0.3)",borderRadius:"10px",padding:"1px 5px",fontSize:"5px",color:"#bc8cff"}}>React</div>
+                            <div style={{background:"rgba(63,185,80,0.15)",border:"1px solid rgba(63,185,80,0.3)",borderRadius:"10px",padding:"1px 5px",fontSize:"5px",color:"#3fb950"}}>AWS</div>
+                          </div>
+                          <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1.5px",color:"#58a6ff",marginBottom:"2px"}}>// Experience</div>
+                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#e6edf3"}}>Senior Engineer · TechCorp</div>
+                          <div style={{fontSize:"5.5px",color:"#8b949e",lineHeight:"1.4"}}>· Built systems serving 10M+ daily users<br/>· Led cloud migration saving $2M/year</div>
+                        </div>
                       </div>
                     )},
                   ].map(t=>(
