@@ -263,9 +263,9 @@ function PaymentModal({onSuccess,onClose}){
         if(data.clientSecret){
           const els=s.elements({clientSecret:data.clientSecret,appearance:{theme:"stripe",variables:{colorPrimary:"#ff8c32",borderRadius:"10px"}}});
           const pe=els.create("payment");
-          pe.on("ready",()=>setLoading(false));
           pe.mount("#payment-element");
           setElements(els);
+          setTimeout(()=>setLoading(false),2000);
         }
       })
       .catch(()=>{setError("Could not load payment form. Please try again.");setLoading(false);});
