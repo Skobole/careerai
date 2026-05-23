@@ -461,7 +461,18 @@ function App(){
       if(!text)throw new Error("Empty response from AI");
       const jsonMatch=text.match(/\{[\s\S]*\}/);
       if(!jsonMatch)throw new Error("Could not parse AI response");
-      const parsed=JSON.parse(jsonMatch[0]);
+      let parsed;
+      try{
+        parsed=JSON.parse(jsonMatch[0]);
+      }catch(e){
+        let fixed=jsonMatch[0];
+        let braces=0,brackets=0;
+        for(const c of fixed){if(c==="{")braces++;if(c==="}")braces--;if(c==="[")brackets++;if(c==="]")brackets--;}
+        while(brackets>0){fixed+="]";brackets--;}
+        while(braces>0){fixed+="}";braces--;}
+        try{parsed=JSON.parse(fixed);}
+        catch(e2){throw new Error("Response too large — please try with a shorter resume or job description");}
+      }
       setResult(parsed);setStep("result");
     }catch(err){
       setError("Something went wrong: "+err.message);setStep("input");
