@@ -435,7 +435,7 @@ function App(){
         if(resumeFile)resumeText=await readFileAsText(resumeFile);
         messages=[{role:"user",content:`RESUME:\n${resumeText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,system:SYSTEM_PROMPT,messages})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:8000,system:SYSTEM_PROMPT,messages})});
       const data=await response.json();
       if(data.error)throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));
       const text=data.content?.map(b=>b.text||"").join("")||"";
@@ -445,7 +445,7 @@ function App(){
       const parsed=JSON.parse(jsonMatch[0]);
       setResult(parsed);setStep("result");
     }catch(err){
-      setError("Something went wrong: "+err.message);setStep("input");
+      setError("Something went wrong: "+err.message+" — If you uploaded a PDF, try pasting your resume text instead for best results.");setStep("input");
     }
   }
 
