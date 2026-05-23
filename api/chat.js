@@ -1,14 +1,47 @@
+const rateLimit = new Map();
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const windowMs = 60 * 60 * 1000; // 1 hour
+  const maxRequests = 10; // max 10 requests per hour per IP
+
+  if (!rateLimit.has(ip)) {
+    rateLimit.set(ip, { count: 1, resetAt: now + windowMs });
+    return false;
+  }
+
+  const record = rateLimit.get(ip);
+
+  if (now > record.resetAt) {
+    rateLimit.set(ip, { count: 1, resetAt: now + windowMs });
+    return false;
+  }
+
+  if (record.count >= maxRequests) {
+    return true;
+  }
+
+  record.count++;
+  return false;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  // Rate limiting
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || 'unknown';
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: 'Too many requests. Please try again in an hour.' });
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  // Input size limit — max 50KB
+  const bodySize = JSON.stringify(req.body).length;
+  if (bodySize > 50000) {
+    return res.status(413).json({ error: 'Input too large. Please shorten your resume or job description.' });
   }
 
   try {
