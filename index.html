@@ -156,7 +156,7 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 <script type="text/babel">
 const {useState,useRef,useEffect}=React;
 
-const STRIPE_PK = 'pk_test_51TaFgUPSyjNFSSyw0JrJQSNR9OhMSsJ6vu6YYdiZSjME2RYW0AfNvXeKZ7dP64B6wXRWaEUQcz2mOoW5aEymurzm00hWxv69jy
+const STRIPE_PK = 'pk_test_51TaFgUPSyjNFSSyw0JrJQSNR9OhMSsJ6vu6YYdiZSjME2RYW0AfNvXeKZ7dP64B6wXRWaEUQcz2mOoW5aEymurzm00hWxv69jy';
 
 function readFileAsBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 function readFileAsText(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(file);});}
