@@ -8,6 +8,7 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -156,7 +157,7 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 <script type="text/babel">
 const {useState,useRef,useEffect}=React;
 
-const STRIPE_PK = 'pk_test_51TaFgUPSyjNFSSyw0JrJQSNR9OhMSsJ6vu6YYdiZSjME2RYW0AfNvXeKZ7dP64B6wXRWaEUQcz2mOoW5aEymurzm00hWxv69jy';
+const STRIPE_PK = 'pk_test_REPLACE_WITH_YOUR_PUBLISHABLE_KEY';
 
 function readFileAsBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 function readFileAsText(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(file);});}
@@ -428,14 +429,23 @@ function App(){
     try{
       let messages;
       if(resumeFile&&resumeFile.type==="application/pdf"){
-        const b64=await readFileAsBase64(resumeFile);
-        messages=[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}},{type:"text",text:`Above is my resume. Job description:\n\n${jobDesc}`}]}];
+        // Extract text from PDF in browser using pdf.js
+        const arrayBuffer=await resumeFile.arrayBuffer();
+        pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+        let extractedText="";
+        for(let i=1;i<=pdf.numPages;i++){
+          const page=await pdf.getPage(i);
+          const content=await page.getTextContent();
+          extractedText+=content.items.map(item=>item.str).join(" ")+"\n";
+        }
+        messages=[{role:"user",content:`RESUME:\n${extractedText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }else{
         let resumeText=resume;
         if(resumeFile)resumeText=await readFileAsText(resumeFile);
         messages=[{role:"user",content:`RESUME:\n${resumeText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:8000,system:SYSTEM_PROMPT,messages})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,system:SYSTEM_PROMPT,messages})});
       const data=await response.json();
       if(data.error)throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));
       const text=data.content?.map(b=>b.text||"").join("")||"";
@@ -445,7 +455,7 @@ function App(){
       const parsed=JSON.parse(jsonMatch[0]);
       setResult(parsed);setStep("result");
     }catch(err){
-      setError("Something went wrong: "+err.message+" — If you uploaded a PDF, try pasting your resume text instead for best results.");setStep("input");
+      setError("Something went wrong: "+err.message);setStep("input");
     }
   }
 
