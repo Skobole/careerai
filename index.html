@@ -462,108 +462,169 @@ function App(){
 
   function buildResumeHTML(d, template){
     const sections = (d.sections||[]);
-    let css = "";
-    let body = "";
+    const sidebarKeys = ["Education","Certifications","Skills","Core Competencies","Technology","Technology & Systems","Additional Highlights","Languages"];
+    let html = "";
 
     if(template === "classic"){
-      css = `body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;padding:0.75in 0.9in;}
-      .name{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:2pt;}
-      .contact{font-size:9.5pt;text-align:center;color:#555;margin-bottom:10pt;}
-      .sh{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1.5px solid #1a1a1a;margin-top:10pt;margin-bottom:4pt;padding-bottom:2pt;}
-      .sub{font-size:10pt;font-weight:bold;margin-bottom:2pt;}
+      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      @page{size:8.5in 11in;margin:0.75in 0.9in;}
+      @media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+      body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.5;}
+      .name{font-size:20pt;font-weight:bold;text-align:center;letter-spacing:1px;margin-bottom:3pt;}
+      .contact{font-size:9pt;text-align:center;color:#555;margin-bottom:10pt;}
+      .sh{font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:2px solid #1a1a1a;margin-top:12pt;margin-bottom:4pt;padding-bottom:2pt;}
+      .sub{font-size:10pt;font-weight:bold;margin-bottom:1pt;}
+      .date{font-size:9.5pt;color:#666;margin-bottom:2pt;}
       .bd{font-size:10pt;margin-bottom:4pt;}
-      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;}`;
-      body = `<p class="name">${d.name}</p><p class="contact">${d.contact}</p>`;
-      if(d.summary)body+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
-      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
+      ul{margin:3pt 0 6pt 16pt;}li{font-size:10pt;margin-bottom:3pt;}
+      </style></head><body>
+      <p class="name">${d.name}</p>
+      <p class="contact">${d.contact}</p>`;
+      if(d.summary)html+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
+      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}});
+      html+=`</body></html>`;
     }
 
     else if(template === "executive"){
-      css = `body{font-family:'Georgia',serif;font-size:10.5pt;color:#1a1a1a;line-height:1.45;padding:0.75in 0.9in;}
-      .header{border-left:4px solid #1a1a6e;padding-left:14pt;margin-bottom:14pt;}
-      .name{font-size:20pt;font-weight:bold;color:#1a1a6e;margin-bottom:2pt;}
-      .contact{font-size:9.5pt;color:#555;}
-      .sh{font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:#1a1a6e;margin-top:12pt;margin-bottom:4pt;}
-      .sh-line{border-bottom:1px solid #1a1a6e;margin-bottom:6pt;}
-      .sub{font-size:10pt;font-weight:bold;margin-bottom:2pt;}
-      .bd{font-size:10pt;margin-bottom:4pt;}
-      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;}`;
-      body = `<div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div>`;
-      if(d.summary)body+=`<p class="sh">Professional Summary</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
-      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
+      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      @page{size:8.5in 11in;margin:0;}
+      @media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+      body{font-family:Georgia,serif;font-size:10.5pt;color:#1a1a1a;line-height:1.5;display:flex;min-height:100vh;}
+      .stripe{width:6pt;background:#1a1a6e;flex-shrink:0;}
+      .content{padding:0.75in 0.9in;flex:1;}
+      .name{font-size:22pt;font-weight:bold;color:#1a1a6e;margin-bottom:2pt;}
+      .title{font-size:11pt;color:#555;font-style:italic;margin-bottom:3pt;}
+      .contact{font-size:9pt;color:#777;margin-bottom:14pt;}
+      .sh{font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:#1a1a6e;margin-top:14pt;margin-bottom:2pt;}
+      .sh-line{border-bottom:1.5px solid #1a1a6e;margin-bottom:6pt;}
+      .sub{font-size:10.5pt;font-weight:bold;margin-bottom:1pt;}
+      .bd{font-size:10pt;margin-bottom:4pt;color:#222;}
+      ul{margin:3pt 0 6pt 16pt;}li{font-size:10pt;margin-bottom:3pt;}
+      </style></head><body>
+      <div class="stripe"></div>
+      <div class="content">
+      <p class="name">${d.name}</p>
+      <p class="contact">${d.contact}</p>`;
+      if(d.summary)html+=`<p class="sh">Executive Profile</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
+      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}});
+      html+=`</div></body></html>`;
     }
 
     else if(template === "modern"){
-      css = `body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;margin:0;padding:0;}
-      .header{background:#ff8c32;color:#fff;padding:24pt 0.9in 16pt;margin-bottom:0;}
-      .name{font-size:22pt;font-weight:bold;margin-bottom:3pt;}
-      .contact{font-size:9.5pt;opacity:0.9;}
-      .content{padding:16pt 0.9in 0.75in;}
-      .sh{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#ff8c32;margin-top:12pt;margin-bottom:2pt;}
-      .sh-line{border-bottom:2px solid #ff8c32;margin-bottom:6pt;}
-      .sub{font-size:10pt;font-weight:bold;margin-bottom:2pt;}
+      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      @page{size:8.5in 11in;margin:0;}
+      @media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+      body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.5;}
+      .header{background:#ff8c32;color:#fff;padding:28pt 0.9in 20pt;}
+      .name{font-size:24pt;font-weight:bold;margin-bottom:3pt;}
+      .contact{font-size:9pt;color:rgba(255,255,255,0.9);}
+      .content{padding:18pt 0.9in 0.75in;}
+      .sh{font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#ff8c32;margin-top:14pt;margin-bottom:2pt;}
+      .sh-accent{width:28pt;height:2.5pt;background:#ff8c32;margin-bottom:6pt;}
+      .sub{font-size:10.5pt;font-weight:bold;margin-bottom:1pt;}
       .bd{font-size:10pt;margin-bottom:4pt;}
-      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;}`;
-      body = `<div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div><div class="content">`;
-      if(d.summary)body+=`<p class="sh">Professional Summary</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
-      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
-      body+=`</div>`;
+      ul{margin:3pt 0 6pt 16pt;}li{font-size:10pt;margin-bottom:3pt;}
+      </style></head><body>
+      <div class="header">
+        <p class="name">${d.name}</p>
+        <p class="contact">${d.contact}</p>
+      </div>
+      <div class="content">`;
+      if(d.summary)html+=`<p class="sh">Professional Summary</p><div class="sh-accent"></div><p class="bd">${d.summary}</p>`;
+      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p><div class="sh-accent"></div>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}});
+      html+=`</div></body></html>`;
     }
 
     else if(template === "twocol"){
-      css = `body{font-family:Arial,sans-serif;font-size:10pt;color:#1a1a1a;line-height:1.4;margin:0;padding:0;}
-      .header{background:#2d2d2d;color:#fff;padding:20pt 0.9in 16pt;text-align:center;}
-      .name{font-size:20pt;font-weight:bold;margin-bottom:3pt;}
-      .contact{font-size:9pt;opacity:0.8;}
-      .cols{display:flex;gap:0;}
-      .sidebar{width:32%;background:#f5f5f5;padding:16pt 14pt 0.75in;min-height:600pt;}
-      .main{flex:1;padding:16pt 0.9in 0.75in 14pt;}
-      .sh{font-size:9.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#2d2d2d;margin-top:12pt;margin-bottom:4pt;border-bottom:1.5px solid #2d2d2d;padding-bottom:2pt;}
-      .sub{font-size:9.5pt;font-weight:bold;margin-bottom:2pt;}
+      const sidebarSections = sections.filter(s=>sidebarKeys.some(k=>s.title.includes(k)));
+      const mainSections = sections.filter(s=>!sidebarKeys.some(k=>s.title.includes(k)));
+      let sidebarHTML = "";
+      sidebarSections.forEach(s=>{sidebarHTML+=`<p class="sh">${s.title}</p>`;if(s.subtitle)sidebarHTML+=`<p class="sub">${s.subtitle}</p>`;if(s.body)sidebarHTML+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){sidebarHTML+=`<ul>`;s.bullets.forEach(b=>{sidebarHTML+=`<li>${b}</li>`;});sidebarHTML+=`</ul>`;}});
+      let mainHTML = "";
+      if(d.summary)mainHTML+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
+      mainSections.forEach(s=>{mainHTML+=`<p class="sh">${s.title}</p>`;if(s.subtitle)mainHTML+=`<p class="sub">${s.subtitle}</p>`;if(s.body)mainHTML+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){mainHTML+=`<ul>`;s.bullets.forEach(b=>{mainHTML+=`<li>${b}</li>`;});mainHTML+=`</ul>`;}});
+      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      @page{size:8.5in 11in;margin:0;}
+      @media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+      body{font-family:Arial,sans-serif;font-size:10pt;color:#1a1a1a;line-height:1.5;display:flex;flex-direction:column;min-height:100vh;}
+      .header{background:#2c3e50;color:#fff;padding:20pt 0.9in;text-align:center;}
+      .name{font-size:22pt;font-weight:bold;color:#fff;margin-bottom:2pt;}
+      .contact{font-size:9pt;color:rgba(255,255,255,0.8);}
+      .cols{display:flex;flex:1;}
+      .sidebar{width:30%;background:#f0f4f8;padding:16pt 14pt;border-right:1pt solid #dde3ea;}
+      .main{flex:1;padding:16pt 0.7in 16pt 18pt;}
+      .sh{font-size:9pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#2c3e50;border-bottom:1.5px solid #2c3e50;padding-bottom:2pt;margin-top:12pt;margin-bottom:4pt;}
+      .sidebar .sh{color:#3498db;border-bottom-color:#3498db;}
+      .sub{font-size:9.5pt;font-weight:bold;margin-bottom:1pt;}
       .bd{font-size:9.5pt;margin-bottom:4pt;}
-      ul{margin:2pt 0 4pt 12pt;}li{font-size:9.5pt;margin-bottom:2pt;}`;
-      const sidebarSections = sections.filter(s=>["Education","Certifications","Skills","Core Competencies","Technology","Technology & Systems","Additional Highlights"].some(k=>s.title.includes(k)));
-      const mainSections = sections.filter(s=>!["Education","Certifications","Skills","Core Competencies","Technology","Technology & Systems","Additional Highlights"].some(k=>s.title.includes(k)));
-      body = `<div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div><div class="cols"><div class="sidebar">`;
-      sidebarSections.forEach(s=>{body+=`<p class="sh">${s.title}</p>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
-      body+=`</div><div class="main">`;
-      if(d.summary)body+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
-      mainSections.forEach(s=>{body+=`<p class="sh">${s.title}</p>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
-      body+=`</div></div>`;
+      ul{margin:2pt 0 5pt 14pt;}li{font-size:9.5pt;margin-bottom:2pt;}
+      </style></head><body>
+      <div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div>
+      <div class="cols">
+        <div class="sidebar">${sidebarHTML}</div>
+        <div class="main">${mainHTML}</div>
+      </div>
+      </body></html>`;
     }
 
     else if(template === "minimal"){
-      css = `body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.5;padding:0.75in 1in;}
-      .name{font-size:24pt;font-weight:300;text-align:center;margin-bottom:2pt;letter-spacing:3px;text-transform:uppercase;}
-      .contact{font-size:9pt;text-align:center;color:#888;margin-bottom:16pt;letter-spacing:1px;}
-      .divider{border:none;border-top:0.5px solid #ccc;margin:10pt 0;}
-      .sh{font-size:9pt;font-weight:bold;text-transform:uppercase;letter-spacing:2.5px;color:#888;margin-top:12pt;margin-bottom:4pt;}
-      .sub{font-size:10pt;font-weight:bold;margin-bottom:1pt;}
-      .bd{font-size:10pt;margin-bottom:4pt;color:#333;}
-      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;color:#333;}`;
-      body = `<p class="name">${d.name}</p><p class="contact">${d.contact}</p><hr class="divider"/>`;
-      if(d.summary)body+=`<p class="sh">Summary</p><p class="bd">${d.summary}</p><hr class="divider"/>`;
-      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}body+=`<hr class="divider"/>`;});
+      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      @page{size:8.5in 11in;margin:0.85in 1.1in;}
+      @media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+      body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.6;}
+      .name{font-size:26pt;font-weight:200;letter-spacing:5px;text-transform:uppercase;margin-bottom:4pt;}
+      .contact{font-size:8.5pt;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16pt;}
+      .divider{border:none;border-top:0.5pt solid #ddd;margin:10pt 0;}
+      .sh{font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:3px;color:#aaa;margin-top:14pt;margin-bottom:5pt;}
+      .sub{font-size:10.5pt;font-weight:500;margin-bottom:1pt;}
+      .date{font-size:9pt;color:#bbb;letter-spacing:0.5px;margin-bottom:3pt;}
+      .bd{font-size:10pt;margin-bottom:4pt;color:#444;}
+      ul{margin:3pt 0 6pt 16pt;list-style:none;}li{font-size:10pt;margin-bottom:3pt;color:#444;}li::before{content:"— ";color:#ccc;}
+      </style></head><body>
+      <p class="name">${d.name}</p>
+      <p class="contact">${d.contact}</p>
+      <hr class="divider"/>`;
+      if(d.summary)html+=`<p class="sh">Profile</p><p class="bd">${d.summary}</p><hr class="divider"/>`;
+      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="date">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}html+=`<hr class="divider"/>`;});
+      html+=`</body></html>`;
     }
 
     else if(template === "darkpro"){
-      css = `body{font-family:Arial,sans-serif;font-size:10.5pt;color:#e0e0e0;line-height:1.4;margin:0;padding:0;background:#1a1a2e;}
-      .header{background:#16213e;padding:24pt 0.9in 16pt;border-bottom:2px solid #e94560;}
-      .name{font-size:20pt;font-weight:bold;color:#fff;margin-bottom:3pt;}
-      .contact{font-size:9.5pt;color:#a0a0b0;}
-      .content{padding:16pt 0.9in 0.75in;}
-      .sh{font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:#e94560;margin-top:12pt;margin-bottom:4pt;}
-      .sh-line{border-bottom:1px solid #e94560;margin-bottom:6pt;opacity:0.4;}
-      .sub{font-size:10pt;font-weight:bold;color:#fff;margin-bottom:2pt;}
-      .bd{font-size:10pt;margin-bottom:4pt;color:#c0c0d0;}
-      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;color:#c0c0d0;}`;
-      body = `<div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div><div class="content">`;
-      if(d.summary)body+=`<p class="sh">Professional Summary</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
-      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
-      body+=`</div>`;
+      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      @page{size:8.5in 11in;margin:0;}
+      @media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+      body{font-family:Arial,sans-serif;font-size:10.5pt;color:#c9d1d9;line-height:1.5;background:#0d1117;}
+      .header{background:#161b22;padding:28pt 0.9in 20pt;border-bottom:2pt solid #e94560;}
+      .name{font-size:22pt;font-weight:bold;color:#e6edf3;letter-spacing:1px;margin-bottom:3pt;}
+      .contact{font-size:9pt;color:#8b949e;}
+      .content{padding:18pt 0.9in 0.75in;}
+      .sh{font-size:9.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:#e94560;margin-top:14pt;margin-bottom:2pt;}
+      .sh-line{border-bottom:1pt solid rgba(233,69,96,0.3);margin-bottom:6pt;}
+      .sub{font-size:10.5pt;font-weight:bold;color:#e6edf3;margin-bottom:1pt;}
+      .bd{font-size:10pt;margin-bottom:4pt;color:#8b949e;}
+      ul{margin:3pt 0 6pt 16pt;}li{font-size:10pt;margin-bottom:3pt;color:#c9d1d9;}
+      </style></head><body>
+      <div class="header">
+        <p class="name">${d.name}</p>
+        <p class="contact">${d.contact}</p>
+      </div>
+      <div class="content">`;
+      if(d.summary)html+=`<p class="sh">Professional Summary</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
+      sections.forEach(s=>{html+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)html+=`<p class="sub">${s.subtitle}</p>`;if(s.body)html+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}});
+      html+=`</div></body></html>`;
     }
 
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{box-sizing:border-box;margin:0;padding:0;}@page{size:8.5in 11in;margin:0;}@media print{body{margin:0;}head,footer{display:none!important;}-webkit-print-color-adjust:exact;print-color-adjust:exact;}${css}</style></head><body>${body}</body></html>`;
+    else {
+      html = buildResumeHTML(d, "classic");
+    }
+
+    return html;
   }
 
   async function exportWord(){
