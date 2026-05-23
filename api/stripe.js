@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
     if (action === 'create_payment_intent') {
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: 1500,
+        amount: 2000,
         currency: 'usd',
         automatic_payment_methods: { enabled: true },
         metadata: { product: 'careerai_analysis' }
