@@ -7,6 +7,7 @@
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -129,12 +130,33 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 .chat-input{flex:1;background:#fff;border:1px solid rgba(255,140,50,0.2);border-radius:12px;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:300;line-height:1.5;padding:12px 16px;resize:none;outline:none;transition:border-color 0.2s;min-height:48px;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
 .chat-input:focus{border-color:#ff8c32;}
 .chat-input::placeholder{color:rgba(26,26,26,0.28);}
+
+/* Payment styles */
+.payment-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);}
+.payment-modal{background:#fff;border-radius:24px;padding:40px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);}
+.payment-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:#1a1a1a;margin-bottom:8px;}
+.payment-sub{font-size:0.92rem;color:#666;font-weight:300;margin-bottom:28px;line-height:1.6;}
+.payment-features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.payment-feature{display:flex;align-items:center;gap:10px;font-size:0.88rem;color:#1a1a1a;}
+.payment-feature-icon{width:20px;height:20px;background:rgba(255,140,50,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#ff8c32;flex-shrink:0;}
+.payment-price{display:flex;align-items:baseline;gap:6px;margin-bottom:24px;}
+.payment-amount{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:#1a1a1a;}
+.payment-period{font-size:0.88rem;color:#888;}
+.payment-note{font-size:0.78rem;color:#aaa;margin-top:6px;}
+#payment-element{margin-bottom:20px;}
+.payment-error{color:#ef4444;font-size:0.84rem;margin-top:8px;padding:10px 14px;background:rgba(239,68,68,0.05);border-radius:8px;border:1px solid rgba(239,68,68,0.15);}
+.payment-success{text-align:center;padding:20px 0;}
+.payment-success-icon{font-size:3rem;margin-bottom:16px;}
+.payment-success-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin-bottom:8px;}
+.payment-success-sub{font-size:0.9rem;color:#666;}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useRef,useEffect}=React;
+
+const STRIPE_PK = 'pk_test_51TaFgUPSyjNFSSyw0JrJQSNR9OhMSsJ6vu6YYdiZSjME2RYW0AfNvXeKZ7dP64B6wXRWaEUQcz2mOoW5aEymurzm00hWxv69jy
 
 function readFileAsBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 function readFileAsText(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(file);});}
@@ -206,7 +228,7 @@ function CoachChat({result,setResult}){
   return(
     <div className="coach-wrap">
       <div className="coach-heading">Your AI Career Coach</div>
-      <div className="coach-subheading">Happy with the results? Want to tweak anything? Just ask — here to help you land this job.</div>
+      <div className="coach-subheading">Happy with the results? Want to tweak anything? Just ask.</div>
       <div className="quick-prompts">{quickPrompts.map((p,i)=><button key={i} className="quick-prompt" onClick={()=>send(p)} disabled={thinking}>{p}</button>)}</div>
       {messages.length>0&&(
         <div className="chat-history">
@@ -218,6 +240,91 @@ function CoachChat({result,setResult}){
       <div className="chat-input-row">
         <textarea className="chat-input" rows={1} placeholder="e.g. Make the cover letter more concise..." value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} disabled={thinking}/>
         <button className="btn-send" onClick={()=>send()} disabled={!input.trim()||thinking}>{thinking?"...":"Send →"}</button>
+      </div>
+    </div>
+  );
+}
+
+function PaymentModal({onSuccess,onClose}){
+  const [stripe,setStripe]=useState(null);
+  const [elements,setElements]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [paying,setPaying]=useState(false);
+  const [error,setError]=useState("");
+  const [success,setSuccess]=useState(false);
+
+  useEffect(()=>{
+    const s=Stripe(STRIPE_PK);
+    setStripe(s);
+    fetch("/api/stripe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create_payment_intent"})})
+      .then(r=>r.json())
+      .then(data=>{
+        if(data.clientSecret){
+          const els=s.elements({clientSecret:data.clientSecret,appearance:{theme:"stripe",variables:{colorPrimary:"#ff8c32",borderRadius:"10px"}}});
+          const pe=els.create("payment");
+          pe.mount("#payment-element");
+          setElements(els);
+          setLoading(false);
+        }
+      })
+      .catch(()=>{setError("Could not load payment form. Please try again.");setLoading(false);});
+  },[]);
+
+  async function handlePay(){
+    if(!stripe||!elements)return;
+    setPaying(true);setError("");
+    const {error:stripeError,paymentIntent}=await stripe.confirmPayment({
+      elements,
+      confirmParams:{return_url:window.location.href},
+      redirect:"if_required"
+    });
+    if(stripeError){
+      setError(stripeError.message);
+      setPaying(false);
+    }else if(paymentIntent&&paymentIntent.status==="succeeded"){
+      setSuccess(true);
+      setTimeout(()=>onSuccess(),1500);
+    }else{
+      setError("Payment was not completed. Please try again.");
+      setPaying(false);
+    }
+  }
+
+  return(
+    <div className="payment-overlay">
+      <div className="payment-modal">
+        {success?(
+          <div className="payment-success">
+            <div className="payment-success-icon">✓</div>
+            <div className="payment-success-title">Payment successful!</div>
+            <div className="payment-success-sub">Running your ATS analysis now...</div>
+          </div>
+        ):(
+          <>
+            <div className="payment-title">Get Your Results</div>
+            <div className="payment-sub">One payment. Unlimited tweaks with your AI coach. No subscription ever.</div>
+            <div className="payment-features">
+              {["ATS Match Score","Keyword Gap Analysis","Resume Bullet Rewrites","Tailored Cover Letter","AI Career Coach — unlimited revisions","Word + PDF Export"].map((f,i)=>(
+                <div key={i} className="payment-feature">
+                  <div className="payment-feature-icon">✓</div>
+                  {f}
+                </div>
+              ))}
+            </div>
+            <div className="payment-price">
+              <div className="payment-amount">$15</div>
+              <div className="payment-period">one-time · no subscription · no cancel button</div>
+            </div>
+            {loading&&<div style={{textAlign:"center",padding:"20px",color:"#aaa"}}>Loading payment form...</div>}
+            <div id="payment-element"/>
+            {error&&<div className="payment-error">{error}</div>}
+            <button className="btn" onClick={handlePay} disabled={paying||loading} style={{marginTop:"16px"}}>
+              {paying?"Processing...":"Pay $15 — Get Results →"}
+            </button>
+            <button className="btn-ghost" onClick={onClose} style={{marginTop:"8px"}}>Cancel</button>
+            <div className="payment-note" style={{textAlign:"center",marginTop:"12px"}}>Secured by Stripe · Apple Pay & Google Pay supported</div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -237,10 +344,10 @@ Return ONLY a valid JSON object (no preamble, no markdown, no backticks) with th
     "name": "<candidate full name>",
     "contact": "<city, phone, email on one line>",
     "summary": "<professional summary paragraph>",
-    "industry": "<industry type e.g. hospitality, tech, finance, healthcare>",
+    "industry": "<industry type>",
     "sections": [
       {
-        "title": "<section name e.g. Core Competencies, Professional Experience, Education>",
+        "title": "<section name>",
         "subtitle": "<job title and company and dates if applicable, else null>",
         "body": "<non-bullet body text if any, else null>",
         "bullets": ["<bullet 1>","<bullet 2>"]
@@ -248,8 +355,7 @@ Return ONLY a valid JSON object (no preamble, no markdown, no backticks) with th
     ]
   }
 }
-
-Rules: accurate atsScore, 3 rewritten bullets applied in resumeData, specific cover letter, resumeData must be fully structured and complete.`;
+Rules: accurate atsScore, 3 rewritten bullets applied in resumeData, specific cover letter.`;
 
 function App(){
   const [step,setStep]=useState("input");
@@ -263,9 +369,25 @@ function App(){
   const [copiedResume,setCopiedResume]=useState(false);
   const [loadStep,setLoadStep]=useState(0);
   const [exporting,setExporting]=useState(false);
+  const [showPayment,setShowPayment]=useState(false);
+  const [paid,setPaid]=useState(false);
 
   const hasResume=resume.trim().length>80||resumeFile!==null;
   const canSubmit=hasResume&&jobDesc.trim().length>60;
+
+  function handleAnalyzeClick(){
+    if(!paid){
+      setShowPayment(true);
+    }else{
+      generate();
+    }
+  }
+
+  function handlePaymentSuccess(){
+    setShowPayment(false);
+    setPaid(true);
+    generate();
+  }
 
   async function generate(){
     setStep("loading");setLoadStep(0);setError("");
@@ -282,7 +404,7 @@ function App(){
       }
       const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,system:SYSTEM_PROMPT,messages})});
       const data=await response.json();
-      if(data.error){throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));}
+      if(data.error)throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));
       const text=data.content?.map(b=>b.text||"").join("")||"";
       if(!text)throw new Error("Empty response from AI");
       const jsonMatch=text.match(/\{[\s\S]*\}/);
@@ -302,53 +424,27 @@ function App(){
       const blob=await response.blob();
       const url=URL.createObjectURL(blob);
       const a=document.createElement("a");
-      a.href=url;
-      a.download="optimized-resume.doc";
-      a.click();
+      a.href=url;a.download="optimized-resume.doc";a.click();
       URL.revokeObjectURL(url);
-    }catch(e){
-      alert("Export failed. Please try again.");
-    }
+    }catch(e){alert("Export failed. Please try again.");}
     setExporting(false);
   }
 
   async function exportPDF(){
     if(!result?.resumeData)return;
     const d=result.resumeData;
-    let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-    <style>
-      @page{size:8.5in 11in;margin:0.75in 0.9in;}
-      body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;max-width:700px;margin:0 auto;}
-      .name{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:2pt;letter-spacing:1px;}
-      .contact{font-size:9.5pt;text-align:center;color:#444;margin-bottom:10pt;}
-      .section-header{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1.5px solid #1a1a1a;margin-top:10pt;margin-bottom:4pt;padding-bottom:2pt;}
-      .subtitle{font-size:10pt;font-weight:bold;margin-bottom:2pt;}
-      .body{font-size:10pt;margin-bottom:4pt;}
-      ul{margin:2pt 0 4pt 0;padding-left:16pt;}
-      li{font-size:10pt;margin-bottom:2pt;}
-      @media print{body{margin:0;}}
-    </style></head><body>`;
-    html+=`<p class="name">${d.name}</p>`;
-    html+=`<p class="contact">${d.contact}</p>`;
-    if(d.summary){
-      html+=`<p class="section-header">Professional Summary</p>`;
-      html+=`<p class="body">${d.summary}</p>`;
-    }
+    let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:8.5in 11in;margin:0.75in 0.9in;}body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;max-width:700px;margin:0 auto;}.name{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:2pt;letter-spacing:1px;}.contact{font-size:9.5pt;text-align:center;color:#444;margin-bottom:10pt;}.section-header{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1.5px solid #1a1a1a;margin-top:10pt;margin-bottom:4pt;padding-bottom:2pt;}.subtitle{font-size:10pt;font-weight:bold;margin-bottom:2pt;}.body{font-size:10pt;margin-bottom:4pt;}ul{margin:2pt 0 4pt 0;padding-left:16pt;}li{font-size:10pt;margin-bottom:2pt;}@media print{body{margin:0;}}</style></head><body>`;
+    html+=`<p class="name">${d.name}</p><p class="contact">${d.contact}</p>`;
+    if(d.summary)html+=`<p class="section-header">Professional Summary</p><p class="body">${d.summary}</p>`;
     (d.sections||[]).forEach(s=>{
       html+=`<p class="section-header">${s.title}</p>`;
       if(s.subtitle)html+=`<p class="subtitle">${s.subtitle}</p>`;
       if(s.body)html+=`<p class="body">${s.body}</p>`;
-      if(s.bullets&&s.bullets.length){
-        html+=`<ul>`;
-        s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});
-        html+=`</ul>`;
-      }
+      if(s.bullets&&s.bullets.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}
     });
     html+=`</body></html>`;
     const win=window.open("","_blank");
-    win.document.write(html);
-    win.document.close();
-    win.focus();
+    win.document.write(html);win.document.close();win.focus();
     setTimeout(()=>win.print(),600);
   }
 
@@ -367,20 +463,21 @@ function App(){
     return text;
   }
 
-  function reset(){setStep("input");setResult(null);setError("");setResume("");setResumeFile(null);setJobDesc("");setLoadStep(0);}
+  function reset(){setStep("input");setResult(null);setError("");setResume("");setResumeFile(null);setJobDesc("");setLoadStep(0);setPaid(false);}
   const loadingSteps=["Reading your resume","Scanning job requirements","Running ATS analysis","Rewriting resume bullets","Crafting your cover letter"];
 
   return(
     <div>
+      {showPayment&&<PaymentModal onSuccess={handlePaymentSuccess} onClose={()=>setShowPayment(false)}/>}
+
       <div className="hero">
-        <div className="hero-bg"/>
-        <div className="hero-overlay"/>
+        <div className="hero-bg"/><div className="hero-overlay"/>
         <div className="hero-content">
           <div className="badge">ATS-Optimized Career Tool</div>
           <h1>Beat the <span>Algorithm.</span><br/>Land the Job.</h1>
           <p className="subtitle">Most resumes never reach a human. We fix that — so you get more callbacks, more interviews, and more offers.</p>
           <div className="price-row">
-            <div className="price-tag"><strong>$15</strong>/month · No subscription. No cancel button. Ever.</div>
+            <div className="price-tag"><strong>$15</strong>/analysis · No subscription. No cancel button. Ever.</div>
           </div>
           <div className="feature-pills">
             <span className="feature-pill">✓ ATS Score</span>
@@ -404,8 +501,7 @@ function App(){
       </div>
 
       <div className="main-wrap">
-        <div className="side-img-left"/>
-        <div className="side-img-right"/>
+        <div className="side-img-left"/><div className="side-img-right"/>
         <div className="main">
           {step==="input"&&(
             <>
@@ -428,7 +524,9 @@ function App(){
                 <textarea rows={8} placeholder="Paste the full job description — the more detail, the better the ATS analysis..." value={jobDesc} onChange={e=>setJobDesc(e.target.value)}/>
               </div>
               <div style={{height:"8px"}}/>
-              <button className="btn" onClick={generate} disabled={!canSubmit}>Run ATS Analysis + Generate Cover Letter →</button>
+              <button className="btn" onClick={handleAnalyzeClick} disabled={!canSubmit}>
+                Run ATS Analysis + Generate Cover Letter →
+              </button>
               {error&&<div className="error-box">{error}</div>}
             </>
           )}
@@ -454,9 +552,7 @@ function App(){
                 <h2>Your results are ready</h2>
                 <p>Here is everything you need to land that interview.</p>
               </div>
-
               <ScoreGauge score={result.atsScore}/>
-
               <div className="card result-section">
                 <div className="section-label">Keyword Match</div>
                 <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.45)",marginBottom:"12px",fontWeight:300}}>Green = found in your resume · Red = missing (add these to beat ATS)</p>
@@ -465,7 +561,6 @@ function App(){
                   {(result.missingKeywords||[]).map((k,i)=><span key={i} className="kw-chip kw-missing">✗ {k}</span>)}
                 </div>
               </div>
-
               {result.formattingWarnings?.length>0&&(
                 <div className="card result-section">
                   <div className="section-label">ATS Formatting Warnings</div>
@@ -474,7 +569,6 @@ function App(){
                   ))}
                 </div>
               )}
-
               {result.rewrittenBullets?.length>0&&(
                 <div className="card result-section">
                   <div className="section-label">Resume Bullet Rewrites</div>
@@ -488,7 +582,6 @@ function App(){
                   ))}
                 </div>
               )}
-
               <div className="card result-section">
                 <div className="section-label">Tailored Cover Letter</div>
                 <div className="result-box">{result.coverLetter}</div>
@@ -496,14 +589,11 @@ function App(){
                   {copied?"✓ Copied!":"Copy to clipboard"}
                 </button>
               </div>
-
               <div className="card result-section">
                 <div className="section-label">Optimized Resume</div>
-                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>
-                  Your complete resume rebuilt with optimized bullets and keywords — professionally formatted and ready to send.
-                </p>
+                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your complete resume rebuilt with optimized bullets — ready to export.</p>
                 <div className="result-box" style={{maxHeight:"360px",overflowY:"auto",fontFamily:"Arial,sans-serif",fontSize:"0.88rem"}}>
-                  {result.resumeData ? getOptimizedText() : "Resume data not available."}
+                  {result.resumeData?getOptimizedText():"Resume data not available."}
                 </div>
                 <div className="export-row">
                   <button className="btn-copy" onClick={()=>{navigator.clipboard.writeText(getOptimizedText());setCopiedResume(true);setTimeout(()=>setCopiedResume(false),2000);}}>
@@ -516,9 +606,8 @@ function App(){
                     ↓ Download PDF
                   </button>
                 </div>
-                <p className="export-note">Word doc opens in Microsoft Word, Google Docs, or Pages. PDF opens print dialog — choose "Save as PDF".</p>
+                <p className="export-note">Word doc opens in Microsoft Word, Google Docs, or Pages. PDF opens print dialog — choose Save as PDF.</p>
               </div>
-
               <div className="card">
                 <CoachChat result={result} setResult={setResult}/>
               </div>
