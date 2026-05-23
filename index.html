@@ -273,19 +273,27 @@ function PaymentModal({onSuccess,onClose}){
   async function handlePay(){
     if(!stripe||!elements)return;
     setPaying(true);setError("");
-    const {error:stripeError,paymentIntent}=await stripe.confirmPayment({
-      elements,
-      confirmParams:{return_url:window.location.href},
-      redirect:"if_required"
-    });
-    if(stripeError){
-      setError(stripeError.message);
-      setPaying(false);
-    }else if(paymentIntent&&paymentIntent.status==="succeeded"){
-      setSuccess(true);
-      setTimeout(()=>onSuccess(),1500);
-    }else{
-      setError("Payment was not completed. Please try again.");
+    try{
+      const {error:stripeError,paymentIntent}=await stripe.confirmPayment({
+        elements,
+        confirmParams:{return_url:window.location.origin},
+        redirect:"if_required"
+      });
+      if(stripeError){
+        setError(stripeError.message);
+        setPaying(false);
+      }else if(paymentIntent&&paymentIntent.status==="succeeded"){
+        setSuccess(true);
+        setTimeout(()=>onSuccess(),1500);
+      }else if(paymentIntent&&paymentIntent.status==="requires_action"){
+        setError("Additional authentication required. Please try again.");
+        setPaying(false);
+      }else{
+        setError("Payment was not completed. Please try again.");
+        setPaying(false);
+      }
+    }catch(e){
+      setError("Payment failed: "+e.message);
       setPaying(false);
     }
   }
@@ -371,6 +379,17 @@ function App(){
   const [exporting,setExporting]=useState(false);
   const [showPayment,setShowPayment]=useState(false);
   const [paid,setPaid]=useState(false);
+
+  // Check if returning from Stripe redirect with successful payment
+  useEffect(()=>{
+    const params=new URLSearchParams(window.location.search);
+    const piSecret=params.get("payment_intent_client_secret");
+    const piStatus=params.get("redirect_status");
+    if(piSecret&&piStatus==="succeeded"){
+      setPaid(true);
+      window.history.replaceState({},"",window.location.pathname);
+    }
+  },[]);
 
   const hasResume=resume.trim().length>80||resumeFile!==null;
   const canSubmit=hasResume&&jobDesc.trim().length>60;
