@@ -348,32 +348,40 @@ function PaymentModal({onSuccess,onClose}){
   );
 }
 
-const SYSTEM_PROMPT=`You are a senior ATS optimization expert and career coach. Analyze the resume against the job description.
+const SYSTEM_PROMPT=`You are a world-class ATS optimization expert. Your goal is to maximize the candidate's ATS match score to 95%+ by aggressively and naturally inserting ALL missing keywords throughout the resume.
 
 Return ONLY a valid JSON object (no preamble, no markdown, no backticks) with this exact structure:
 {
-  "atsScore": <integer 0-100>,
+  "atsScore": <integer 0-100 — score BEFORE optimization>,
   "foundKeywords": [<max 12 keywords found in both>],
   "missingKeywords": [<max 10 keywords missing, highest impact first>],
   "formattingWarnings": [<ATS issues, empty array if none>],
-  "rewrittenBullets": [{"original":"<exact bullet from resume>","improved":"<rewritten with keywords>"}],
+  "rewrittenBullets": [{"original":"<exact bullet from resume>","improved":"<rewritten with ALL missing keywords naturally inserted>"}],
   "coverLetter": "<3-4 paragraphs. Dear Hiring Manager, ... Best regards, [Your Name]>",
   "resumeData": {
-    "name": "<candidate full name>",
-    "contact": "<city, phone, email on one line>",
-    "summary": "<professional summary paragraph>",
+    "name": "<candidate full name — copy exactly>",
+    "contact": "<city, phone, email on one line — copy exactly>",
+    "summary": "<REWRITE the summary to naturally include ALL missing keywords while keeping the candidate's voice and experience>",
     "industry": "<industry type>",
     "sections": [
       {
-        "title": "<section name>",
-        "subtitle": "<job title and company and dates if applicable, else null>",
-        "body": "<non-bullet body text if any, else null>",
-        "bullets": ["<bullet 1>","<bullet 2>"]
+        "title": "<section name — copy exactly>",
+        "subtitle": "<job title and company and dates — copy exactly>",
+        "body": "<non-bullet body text — rewrite to include missing keywords if applicable>",
+        "bullets": ["<rewrite EVERY bullet in this section to naturally include missing keywords where relevant>"]
       }
     ]
   }
 }
-Rules: accurate atsScore, 3 rewritten bullets applied in resumeData, specific cover letter. CRITICAL: In resumeData, NEVER change the candidates name, contact details, job titles, company names, or dates — copy them exactly as they appear in the original resume. Only rewrite bullet points.`;
+
+CRITICAL RULES:
+1. NEVER change name, contact info, job titles, company names, or dates
+2. Rewrite the summary to include ALL missing keywords naturally
+3. Rewrite ALL bullets across ALL sections — not just 3 — to include missing keywords where they naturally fit
+4. Every missing keyword must appear at least once in the final resumeData
+5. Keep the candidate's authentic voice — do not make claims they cannot support
+6. rewrittenBullets should show the 5 most impactful rewrites for the user to review
+7. atsScore reflects the ORIGINAL score before optimization — resumeData contains the fully optimized version`;
 
 function App(){
   const [step,setStep]=useState("input");
@@ -446,7 +454,7 @@ function App(){
         if(resumeFile)resumeText=await readFileAsText(resumeFile);
         messages=[{role:"user",content:`RESUME:\n${resumeText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,system:SYSTEM_PROMPT,messages})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:8000,system:SYSTEM_PROMPT,messages})});
       const data=await response.json();
       if(data.error)throw new Error(typeof data.error==="string"?data.error:JSON.stringify(data.error));
       const text=data.content?.map(b=>b.text||"").join("")||"";
@@ -792,7 +800,7 @@ function App(){
               {result.rewrittenBullets?.length>0&&(
                 <div className="card result-section">
                   <div className="section-label">Resume Bullet Rewrites</div>
-                  <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your weakest bullets rewritten to include missing keywords</p>
+                  <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your key bullets rewritten with missing keywords — apply these to maximize your ATS score</p>
                   {result.rewrittenBullets.map((b,i)=>(
                     <div key={i} className="bullet-item">
                       <div className="bullet-before">{b.original}</div>
