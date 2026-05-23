@@ -7,7 +7,6 @@
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://js.stripe.com/v3/"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -246,100 +245,14 @@ function CoachChat({result,setResult}){
   );
 }
 
-function PaymentModal({onSuccess,onClose}){
-  const [stripe,setStripe]=useState(null);
-  const [elements,setElements]=useState(null);
-  const [loading,setLoading]=useState(true);
-  const [paying,setPaying]=useState(false);
-  const [error,setError]=useState("");
-  const [success,setSuccess]=useState(false);
-  const elementsRef=useRef(null);
-
-  useEffect(()=>{
-    const s=Stripe(STRIPE_PK);
-    setStripe(s);
-    fetch("/api/stripe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create_payment_intent"})})
-      .then(r=>r.json())
-      .then(data=>{
-        if(data.clientSecret){
-          const els=s.elements({clientSecret:data.clientSecret,appearance:{theme:"stripe",variables:{colorPrimary:"#ff8c32",borderRadius:"10px"}}});
-          elementsRef.current=els;
-          const pe=els.create("payment");
-          pe.mount("#payment-element");
-          setElements(els);
-          setTimeout(()=>setLoading(false),3000);
-        }
-      })
-      .catch(()=>{setError("Could not load payment form. Please try again.");setLoading(false);});
-  },[]);
-
-  async function handlePay(){
-    const els=elementsRef.current||elements;
-    if(!stripe||!els)return;
-    setPaying(true);setError("");
-    try{
-      const {error:stripeError,paymentIntent}=await stripe.confirmPayment({
-        elements:els,
-        confirmParams:{return_url:window.location.origin},
-        redirect:"if_required"
-      });
-      if(stripeError){
-        setError(stripeError.message);
-        setPaying(false);
-      }else if(paymentIntent&&paymentIntent.status==="succeeded"){
-        setSuccess(true);
-        setTimeout(()=>onSuccess(),1500);
-      }else if(paymentIntent&&paymentIntent.status==="requires_action"){
-        setError("Additional authentication required. Please try again.");
-        setPaying(false);
-      }else{
-        setError("Payment was not completed. Please try again.");
-        setPaying(false);
-      }
-    }catch(e){
-      setError("Payment failed: "+e.message);
-      setPaying(false);
-    }
+async function redirectToCheckout(){
+  const response=await fetch("/api/stripe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create_checkout"})});
+  const data=await response.json();
+  if(data.url){
+    window.location.href=data.url;
+  }else{
+    alert("Could not start checkout. Please try again.");
   }
-
-  return(
-    <div className="payment-overlay">
-      <div className="payment-modal">
-        {success?(
-          <div className="payment-success">
-            <div className="payment-success-icon">✓</div>
-            <div className="payment-success-title">Payment successful!</div>
-            <div className="payment-success-sub">Running your ATS analysis now...</div>
-          </div>
-        ):(
-          <>
-            <div className="payment-title">Get Your Results</div>
-            <div className="payment-sub">One payment. Unlimited tweaks with your AI coach. No subscription ever.</div>
-            <div className="payment-features">
-              {["ATS Match Score","Keyword Gap Analysis","Resume Bullet Rewrites","Tailored Cover Letter","AI Career Coach — unlimited revisions","Word + PDF Export"].map((f,i)=>(
-                <div key={i} className="payment-feature">
-                  <div className="payment-feature-icon">✓</div>
-                  {f}
-                </div>
-              ))}
-            </div>
-            <div className="payment-price">
-              <div className="payment-amount">$15</div>
-              <div className="payment-period">/month · one-time · no subscription · no cancel button</div>
-            </div>
-            {loading&&<div style={{textAlign:"center",padding:"20px",color:"#aaa"}}>Loading payment form...</div>}
-            <div id="payment-element"/>
-            {error&&<div className="payment-error">{error}</div>}
-            <button className="btn" onClick={handlePay} disabled={paying||loading} style={{marginTop:"16px"}}>
-              {paying?"Processing...":"Pay $15 — Get Results →"}
-            </button>
-            <button className="btn-ghost" onClick={onClose} style={{marginTop:"8px"}}>Cancel</button>
-            <div className="payment-note" style={{textAlign:"center",marginTop:"12px"}}>Secured by Stripe · Apple Pay & Google Pay supported</div>
-          </>
-        )}
-      </div>
-    </div>
-  );
 }
 
 const SYSTEM_PROMPT=`You are a senior ATS optimization expert and career coach. Analyze the resume against the job description.
@@ -381,17 +294,26 @@ function App(){
   const [copiedResume,setCopiedResume]=useState(false);
   const [loadStep,setLoadStep]=useState(0);
   const [exporting,setExporting]=useState(false);
-  const [showPayment,setShowPayment]=useState(false);
   const [paid,setPaid]=useState(false);
 
-  // Check if returning from Stripe redirect with successful payment
+  // Check if returning from Stripe checkout with successful payment
   useEffect(()=>{
     const params=new URLSearchParams(window.location.search);
-    const piSecret=params.get("payment_intent_client_secret");
-    const piStatus=params.get("redirect_status");
-    if(piSecret&&piStatus==="succeeded"){
+    const paymentStatus=params.get("payment");
+    if(paymentStatus==="success"){
+      // Restore saved inputs
+      const savedResume=sessionStorage.getItem("resume")||"";
+      const savedJobDesc=sessionStorage.getItem("jobDesc")||"";
+      setResume(savedResume);
+      setJobDesc(savedJobDesc);
       setPaid(true);
       window.history.replaceState({},"",window.location.pathname);
+      // Auto-run analysis after short delay
+      setTimeout(()=>{
+        if(savedResume.length>80&&savedJobDesc.length>60){
+          generate();
+        }
+      },500);
     }
   },[]);
 
@@ -414,16 +336,16 @@ function App(){
       return;
     }
     if(!paid){
-      setShowPayment(true);
+      // Save inputs to sessionStorage then redirect to Stripe checkout
+      sessionStorage.setItem("resume", resume);
+      sessionStorage.setItem("jobDesc", jobDesc);
+      if(resumeFile){
+        sessionStorage.setItem("resumeFileName", resumeFile.name);
+      }
+      redirectToCheckout();
     }else{
       generate();
     }
-  }
-
-  function handlePaymentSuccess(){
-    setShowPayment(false);
-    setPaid(true);
-    generate();
   }
 
   async function generate(){
@@ -514,8 +436,6 @@ function App(){
 
   return(
     <div>
-      {showPayment&&<PaymentModal onSuccess={handlePaymentSuccess} onClose={()=>setShowPayment(false)}/>}
-
       <div className="hero">
         <div className="hero-bg"/><div className="hero-overlay"/>
         <div className="hero-content">
