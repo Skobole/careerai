@@ -75,6 +75,22 @@ textarea::placeholder{color:rgba(26,26,26,0.25);}
 .btn-send:disabled{opacity:0.38;cursor:not-allowed;}
 .export-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center;}
 .export-note{font-size:0.75rem;color:rgba(26,26,26,0.38);margin-top:8px;}
+/* Template picker */
+.template-section{margin-top:24px;}
+.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+@media(max-width:600px){.template-grid{grid-template-columns:repeat(2,1fr);}}
+.template-card{border:2px solid rgba(255,140,50,0.15);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.2s;background:#fff;}
+.template-card:hover{border-color:rgba(255,140,50,0.5);transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,120,40,0.12);}
+.template-card.selected{border-color:#e8192c;box-shadow:0 6px 20px rgba(232,25,44,0.2);}
+.template-preview{height:110px;padding:10px;position:relative;overflow:hidden;}
+.template-label{padding:8px 12px;border-top:1px solid rgba(0,0,0,0.06);}
+.template-label p{margin:0;font-size:12px;}
+.template-name{font-weight:500;color:#1a1a1a;}
+.template-desc{color:rgba(26,26,26,0.45);font-size:11px;}
+.tl{height:7px;border-radius:2px;background:rgba(0,0,0,0.1);margin-bottom:4px;}
+.tl.w50{width:50%}.tl.w60{width:60%}.tl.w70{width:70%}.tl.w80{width:80%}.tl.w85{width:85%}.tl.w90{width:90%}.tl.w100{width:100%}
+.tl.h5{height:5px}.tl.h8{height:8px}.tl.h10{height:10px}
+
 .loading-wrap{text-align:center;padding:70px 24px;}
 .spinner{width:44px;height:44px;border:3px solid rgba(255,140,50,0.2);border-top-color:#ff8c32;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 24px;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -375,6 +391,7 @@ function App(){
   const [copiedResume,setCopiedResume]=useState(false);
   const [loadStep,setLoadStep]=useState(0);
   const [exporting,setExporting]=useState(false);
+  const [selectedTemplate,setSelectedTemplate]=useState("classic");
   const [paid,setPaid]=useState(false);
   const [showPayment,setShowPayment]=useState(false);
 
@@ -447,15 +464,121 @@ function App(){
     }
   }
 
+  function buildResumeHTML(d, template){
+    const sections = (d.sections||[]);
+    let css = "";
+    let body = "";
+
+    if(template === "classic"){
+      css = `body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;padding:0.75in 0.9in;}
+      .name{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:2pt;}
+      .contact{font-size:9.5pt;text-align:center;color:#555;margin-bottom:10pt;}
+      .sh{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1.5px solid #1a1a1a;margin-top:10pt;margin-bottom:4pt;padding-bottom:2pt;}
+      .sub{font-size:10pt;font-weight:bold;margin-bottom:2pt;}
+      .bd{font-size:10pt;margin-bottom:4pt;}
+      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;}`;
+      body = `<p class="name">${d.name}</p><p class="contact">${d.contact}</p>`;
+      if(d.summary)body+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
+      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
+    }
+
+    else if(template === "executive"){
+      css = `body{font-family:'Georgia',serif;font-size:10.5pt;color:#1a1a1a;line-height:1.45;padding:0.75in 0.9in;}
+      .header{border-left:4px solid #1a1a6e;padding-left:14pt;margin-bottom:14pt;}
+      .name{font-size:20pt;font-weight:bold;color:#1a1a6e;margin-bottom:2pt;}
+      .contact{font-size:9.5pt;color:#555;}
+      .sh{font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:#1a1a6e;margin-top:12pt;margin-bottom:4pt;}
+      .sh-line{border-bottom:1px solid #1a1a6e;margin-bottom:6pt;}
+      .sub{font-size:10pt;font-weight:bold;margin-bottom:2pt;}
+      .bd{font-size:10pt;margin-bottom:4pt;}
+      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;}`;
+      body = `<div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div>`;
+      if(d.summary)body+=`<p class="sh">Professional Summary</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
+      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
+    }
+
+    else if(template === "modern"){
+      css = `body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;margin:0;padding:0;}
+      .header{background:#ff8c32;color:#fff;padding:24pt 0.9in 16pt;margin-bottom:0;}
+      .name{font-size:22pt;font-weight:bold;margin-bottom:3pt;}
+      .contact{font-size:9.5pt;opacity:0.9;}
+      .content{padding:16pt 0.9in 0.75in;}
+      .sh{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#ff8c32;margin-top:12pt;margin-bottom:2pt;}
+      .sh-line{border-bottom:2px solid #ff8c32;margin-bottom:6pt;}
+      .sub{font-size:10pt;font-weight:bold;margin-bottom:2pt;}
+      .bd{font-size:10pt;margin-bottom:4pt;}
+      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;}`;
+      body = `<div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div><div class="content">`;
+      if(d.summary)body+=`<p class="sh">Professional Summary</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
+      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
+      body+=`</div>`;
+    }
+
+    else if(template === "twocol"){
+      css = `body{font-family:Arial,sans-serif;font-size:10pt;color:#1a1a1a;line-height:1.4;margin:0;padding:0;}
+      .header{background:#2d2d2d;color:#fff;padding:20pt 0.9in 16pt;text-align:center;}
+      .name{font-size:20pt;font-weight:bold;margin-bottom:3pt;}
+      .contact{font-size:9pt;opacity:0.8;}
+      .cols{display:flex;gap:0;}
+      .sidebar{width:32%;background:#f5f5f5;padding:16pt 14pt 0.75in;min-height:600pt;}
+      .main{flex:1;padding:16pt 0.9in 0.75in 14pt;}
+      .sh{font-size:9.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#2d2d2d;margin-top:12pt;margin-bottom:4pt;border-bottom:1.5px solid #2d2d2d;padding-bottom:2pt;}
+      .sub{font-size:9.5pt;font-weight:bold;margin-bottom:2pt;}
+      .bd{font-size:9.5pt;margin-bottom:4pt;}
+      ul{margin:2pt 0 4pt 12pt;}li{font-size:9.5pt;margin-bottom:2pt;}`;
+      const sidebarSections = sections.filter(s=>["Education","Certifications","Skills","Core Competencies","Technology","Technology & Systems","Additional Highlights"].some(k=>s.title.includes(k)));
+      const mainSections = sections.filter(s=>!["Education","Certifications","Skills","Core Competencies","Technology","Technology & Systems","Additional Highlights"].some(k=>s.title.includes(k)));
+      body = `<div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div><div class="cols"><div class="sidebar">`;
+      sidebarSections.forEach(s=>{body+=`<p class="sh">${s.title}</p>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
+      body+=`</div><div class="main">`;
+      if(d.summary)body+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
+      mainSections.forEach(s=>{body+=`<p class="sh">${s.title}</p>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
+      body+=`</div></div>`;
+    }
+
+    else if(template === "minimal"){
+      css = `body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.5;padding:0.75in 1in;}
+      .name{font-size:24pt;font-weight:300;text-align:center;margin-bottom:2pt;letter-spacing:3px;text-transform:uppercase;}
+      .contact{font-size:9pt;text-align:center;color:#888;margin-bottom:16pt;letter-spacing:1px;}
+      .divider{border:none;border-top:0.5px solid #ccc;margin:10pt 0;}
+      .sh{font-size:9pt;font-weight:bold;text-transform:uppercase;letter-spacing:2.5px;color:#888;margin-top:12pt;margin-bottom:4pt;}
+      .sub{font-size:10pt;font-weight:bold;margin-bottom:1pt;}
+      .bd{font-size:10pt;margin-bottom:4pt;color:#333;}
+      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;color:#333;}`;
+      body = `<p class="name">${d.name}</p><p class="contact">${d.contact}</p><hr class="divider"/>`;
+      if(d.summary)body+=`<p class="sh">Summary</p><p class="bd">${d.summary}</p><hr class="divider"/>`;
+      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}body+=`<hr class="divider"/>`;});
+    }
+
+    else if(template === "darkpro"){
+      css = `body{font-family:Arial,sans-serif;font-size:10.5pt;color:#e0e0e0;line-height:1.4;margin:0;padding:0;background:#1a1a2e;}
+      .header{background:#16213e;padding:24pt 0.9in 16pt;border-bottom:2px solid #e94560;}
+      .name{font-size:20pt;font-weight:bold;color:#fff;margin-bottom:3pt;}
+      .contact{font-size:9.5pt;color:#a0a0b0;}
+      .content{padding:16pt 0.9in 0.75in;}
+      .sh{font-size:10pt;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:#e94560;margin-top:12pt;margin-bottom:4pt;}
+      .sh-line{border-bottom:1px solid #e94560;margin-bottom:6pt;opacity:0.4;}
+      .sub{font-size:10pt;font-weight:bold;color:#fff;margin-bottom:2pt;}
+      .bd{font-size:10pt;margin-bottom:4pt;color:#c0c0d0;}
+      ul{margin:2pt 0 4pt 14pt;}li{font-size:10pt;margin-bottom:2pt;color:#c0c0d0;}`;
+      body = `<div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div><div class="content">`;
+      if(d.summary)body+=`<p class="sh">Professional Summary</p><div class="sh-line"></div><p class="bd">${d.summary}</p>`;
+      sections.forEach(s=>{body+=`<p class="sh">${s.title}</p><div class="sh-line"></div>`;if(s.subtitle)body+=`<p class="sub">${s.subtitle}</p>`;if(s.body)body+=`<p class="bd">${s.body}</p>`;if(s.bullets?.length){body+=`<ul>`;s.bullets.forEach(b=>{body+=`<li>${b}</li>`;});body+=`</ul>`;}});
+      body+=`</div>`;
+    }
+
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{box-sizing:border-box;margin:0;padding:0;}@page{size:8.5in 11in;margin:0;}@media print{body{margin:0;}head,footer{display:none!important;}-webkit-print-color-adjust:exact;print-color-adjust:exact;}${css}</style></head><body>${body}</body></html>`;
+  }
+
   async function exportWord(){
     if(!result?.resumeData)return;
     setExporting(true);
     try{
-      const response=await fetch("/api/export",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({resumeData:result.resumeData})});
-      const blob=await response.blob();
+      const html=buildResumeHTML(result.resumeData, selectedTemplate);
+      const blob=new Blob([html],{type:"application/msword"});
       const url=URL.createObjectURL(blob);
       const a=document.createElement("a");
-      a.href=url;a.download="optimized-resume.doc";a.click();
+      a.href=url;a.download=`resume-${selectedTemplate}.doc`;a.click();
       URL.revokeObjectURL(url);
     }catch(e){alert("Export failed. Please try again.");}
     setExporting(false);
@@ -463,20 +586,10 @@ function App(){
 
   async function exportPDF(){
     if(!result?.resumeData)return;
-    const d=result.resumeData;
-    let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:8.5in 11in;margin:0.75in 0.9in;margin-header:0;margin-footer:0;}body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;max-width:700px;margin:0 auto;}.name{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:2pt;letter-spacing:1px;}.contact{font-size:9.5pt;text-align:center;color:#444;margin-bottom:10pt;}.section-header{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1.5px solid #1a1a1a;margin-top:10pt;margin-bottom:4pt;padding-bottom:2pt;}.subtitle{font-size:10pt;font-weight:bold;margin-bottom:2pt;}.body{font-size:10pt;margin-bottom:4pt;}ul{margin:2pt 0 4pt 0;padding-left:16pt;}li{font-size:10pt;margin-bottom:2pt;}@media print{body{margin:0;}@page{margin:0.75in 0.9in;size:8.5in 11in;}html{-webkit-print-color-adjust:exact;}head,footer{display:none!important;}}</style></head><body>`;
-    html+=`<p class="name">${d.name}</p><p class="contact">${d.contact}</p>`;
-    if(d.summary)html+=`<p class="section-header">Professional Summary</p><p class="body">${d.summary}</p>`;
-    (d.sections||[]).forEach(s=>{
-      html+=`<p class="section-header">${s.title}</p>`;
-      if(s.subtitle)html+=`<p class="subtitle">${s.subtitle}</p>`;
-      if(s.body)html+=`<p class="body">${s.body}</p>`;
-      if(s.bullets&&s.bullets.length){html+=`<ul>`;s.bullets.forEach(b=>{html+=`<li>${b}</li>`;});html+=`</ul>`;}
-    });
-    html+=`</body></html>`;
+    const html=buildResumeHTML(result.resumeData, selectedTemplate);
     const win=window.open("","_blank");
     win.document.write(html);win.document.close();win.focus();
-    setTimeout(()=>win.print(),600);
+    setTimeout(()=>win.print(),800);
   }
 
   function getOptimizedText(){
@@ -624,9 +737,89 @@ function App(){
               </div>
               <div className="card result-section">
                 <div className="section-label">Optimized Resume</div>
-                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your complete resume rebuilt with optimized bullets — ready to export.</p>
-                <div className="result-box" style={{maxHeight:"360px",overflowY:"auto",fontFamily:"Arial,sans-serif",fontSize:"0.88rem"}}>
+                <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your complete resume rebuilt with optimized bullets. Choose a template then export.</p>
+                <div className="result-box" style={{maxHeight:"280px",overflowY:"auto",fontFamily:"Arial,sans-serif",fontSize:"0.88rem"}}>
                   {result.resumeData?getOptimizedText():"Resume data not available."}
+                </div>
+                <div className="section-label" style={{marginTop:"20px"}}>Choose Template</div>
+                <div className="template-grid">
+                  {[
+                    {id:"classic",name:"Classic",desc:"Clean · Single column",preview:(
+                      <div style={{padding:"10px"}}>
+                        <div className="tl h10 w60" style={{marginBottom:"4px"}}/>
+                        <div className="tl h5 w40" style={{marginBottom:"8px"}}/>
+                        <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
+                        <div className="tl h5 w85" style={{marginBottom:"3px"}}/>
+                        <div className="tl h5 w90"/>
+                      </div>
+                    )},
+                    {id:"executive",name:"Executive",desc:"Bold · Senior roles",preview:(
+                      <div style={{padding:"10px",borderLeft:"4px solid #1a1a6e"}}>
+                        <div className="tl h10 w65" style={{marginBottom:"4px",background:"#1a1a6e"}}/>
+                        <div className="tl h5 w45" style={{marginBottom:"8px"}}/>
+                        <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
+                        <div className="tl h5 w80" style={{marginBottom:"3px"}}/>
+                        <div className="tl h5 w90"/>
+                      </div>
+                    )},
+                    {id:"modern",name:"Modern",desc:"Accent header · Creative",preview:(
+                      <div>
+                        <div style={{background:"#ff8c32",padding:"8px 10px",marginBottom:"8px"}}>
+                          <div className="tl h8 w55" style={{marginBottom:"3px",background:"rgba(255,255,255,0.5)"}}/>
+                          <div className="tl h5 w35" style={{background:"rgba(255,255,255,0.35)"}}/>
+                        </div>
+                        <div style={{padding:"0 10px"}}>
+                          <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
+                          <div className="tl h5 w85" style={{marginBottom:"3px"}}/>
+                          <div className="tl h5 w90"/>
+                        </div>
+                      </div>
+                    )},
+                    {id:"twocol",name:"Two-column",desc:"Sidebar · Maximizes space",preview:(
+                      <div style={{display:"flex",gap:"8px",padding:"10px"}}>
+                        <div style={{width:"40%",borderRight:"1px solid rgba(0,0,0,0.1)",paddingRight:"6px"}}>
+                          <div className="tl h8 w100" style={{marginBottom:"4px"}}/>
+                          <div className="tl h5 w80" style={{marginBottom:"3px"}}/>
+                          <div className="tl h5 w90" style={{marginBottom:"3px"}}/>
+                          <div className="tl h5 w70"/>
+                        </div>
+                        <div style={{flex:1}}>
+                          <div className="tl h8 w100" style={{marginBottom:"4px"}}/>
+                          <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
+                          <div className="tl h5 w85" style={{marginBottom:"3px"}}/>
+                          <div className="tl h5 w90"/>
+                        </div>
+                      </div>
+                    )},
+                    {id:"minimal",name:"Minimal",desc:"Ultra clean · Any industry",preview:(
+                      <div style={{padding:"10px",textAlign:"center"}}>
+                        <div className="tl h8 w55" style={{margin:"0 auto 4px",background:"rgba(0,0,0,0.12)"}}/>
+                        <div className="tl h5 w35" style={{margin:"0 auto 8px"}}/>
+                        <div style={{borderTop:"0.5px solid rgba(0,0,0,0.15)",paddingTop:"6px",textAlign:"left"}}>
+                          <div className="tl h5 w100" style={{marginBottom:"3px"}}/>
+                          <div className="tl h5 w80" style={{marginBottom:"3px"}}/>
+                          <div className="tl h5 w90"/>
+                        </div>
+                      </div>
+                    )},
+                    {id:"darkpro",name:"Dark Pro",desc:"Bold · Tech · Design",preview:(
+                      <div style={{background:"#1a1a2e",height:"100%",margin:"-10px",padding:"10px"}}>
+                        <div className="tl h8 w60" style={{marginBottom:"4px",background:"rgba(255,255,255,0.3)"}}/>
+                        <div className="tl h5 w40" style={{marginBottom:"8px",background:"rgba(255,255,255,0.15)"}}/>
+                        <div className="tl h5 w100" style={{marginBottom:"3px",background:"rgba(255,255,255,0.15)"}}/>
+                        <div className="tl h5 w85" style={{marginBottom:"3px",background:"rgba(255,255,255,0.15)"}}/>
+                        <div className="tl h5 w90" style={{background:"rgba(255,255,255,0.15)"}}/>
+                      </div>
+                    )},
+                  ].map(t=>(
+                    <div key={t.id} className={`template-card${selectedTemplate===t.id?" selected":""}`} onClick={()=>setSelectedTemplate(t.id)}>
+                      <div className="template-preview">{t.preview}</div>
+                      <div className="template-label">
+                        <p className="template-name">{t.name}</p>
+                        <p className="template-desc">{t.desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
                 <div className="export-row">
                   <button className="btn-copy" onClick={()=>{navigator.clipboard.writeText(getOptimizedText());setCopiedResume(true);setTimeout(()=>setCopiedResume(false),2000);}}>
@@ -640,7 +833,7 @@ function App(){
                   </button>
                 </div>
                 <p className="export-note">Word doc opens in Microsoft Word, Google Docs, or Pages.</p>
-                <p className="export-note" style={{marginTop:"6px",color:"#ff8c32",fontWeight:"500"}}>PDF tip: When the print dialog opens — uncheck "Headers and Footers" to remove the URL and timestamp before saving.</p>
+                <p className="export-note" style={{marginTop:"6px",color:"#ff8c32",fontWeight:"500"}}>PDF tip: When the print dialog opens — uncheck "Headers and Footers" to remove the URL and timestamp.</p>
               </div>
               <div className="card">
                 <CoachChat result={result} setResult={setResult}/>
