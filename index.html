@@ -566,32 +566,112 @@ function App(){
     else if(template === "twocol"){
       const sidebarSections = sections.filter(s=>sidebarKeys.some(k=>s.title.includes(k)));
       const mainSections = sections.filter(s=>!sidebarKeys.some(k=>s.title.includes(k)));
-      let sidebarHTML = renderSections(sidebarSections,"sh","sub","bd","","","");
+
+      // Parse contact into parts
+      const contactParts = d.contact.split(/[·•|]/).map(c=>c.trim()).filter(Boolean);
+      const contactIcons = ["📍","📞","✉","in"];
+      let contactHTML = "";
+      contactParts.forEach((c,i)=>{
+        const icon = i===0?"📍":i===1?"📞":i===2?"✉":"";
+        contactHTML+=`<p class="sb-contact">${icon} ${c}</p>`;
+      });
+
+      // Build sidebar
+      let sidebarHTML = `<div class="sb-block"><p class="sb-sh">Contact</p>${contactHTML}</div>`;
+      sidebarSections.forEach(s=>{
+        sidebarHTML+=`<div class="sb-block"><p class="sb-sh">${s.title}</p>`;
+        if(s.subtitle)sidebarHTML+=`<p class="sb-sub">${s.subtitle}</p>`;
+        if(s.body)sidebarHTML+=`<p class="sb-body">${s.body}</p>`;
+        if(s.bullets?.length){
+          s.bullets.forEach(b=>{sidebarHTML+=`<p class="sb-bullet">· ${b}</p>`;});
+        }
+        sidebarHTML+=`</div>`;
+      });
+
+      // Build main content — group same-title sections
       let mainHTML = "";
-      if(d.summary)mainHTML+=`<p class="sh">Professional Summary</p><p class="bd">${d.summary}</p>`;
-      mainHTML+=renderSections(mainSections,"sh","sub","bd","","","");
+      if(d.summary){
+        mainHTML+=`<div class="main-section">
+          <p class="main-sh">Professional Profile</p>
+          <div class="gold-rule"></div>
+          <p class="main-body">${d.summary}</p>
+        </div>`;
+      }
+
+      // Group sections by title
+      const grouped=[];
+      let gi=0;
+      while(gi<mainSections.length){
+        const title=mainSections[gi].title;
+        const grp=[];
+        while(gi<mainSections.length&&mainSections[gi].title===title){grp.push(mainSections[gi]);gi++;}
+        grouped.push({title,grp});
+      }
+
+      grouped.forEach(({title,grp})=>{
+        mainHTML+=`<div class="main-section"><p class="main-sh">${title}</p><div class="gold-rule"></div>`;
+        grp.forEach((s,idx)=>{
+          if(idx>0)mainHTML+=`<div class="job-spacer"></div>`;
+          if(s.subtitle){
+            // Split subtitle into title | company | dates
+            const parts=s.subtitle.split(/[|·—]/).map(x=>x.trim());
+            mainHTML+=`<p class="job-title">${parts[0]||s.subtitle}</p>`;
+            if(parts.length>1)mainHTML+=`<p class="job-meta">${parts.slice(1).join(" · ")}</p>`;
+          }
+          if(s.body)mainHTML+=`<p class="main-body">${s.body}</p>`;
+          if(s.bullets?.length){
+            mainHTML+=`<ul>`;
+            s.bullets.forEach(b=>{mainHTML+=`<li>${b}</li>`;});
+            mainHTML+=`</ul>`;
+          }
+        });
+        mainHTML+=`</div>`;
+      });
+
       html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
-      *{box-sizing:border-box;margin:0;padding:0;}
-      @page{size:8.5in 11in;margin:0;}
-      @media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-      body{font-family:Arial,sans-serif;font-size:10pt;color:#1a1a1a;line-height:1.5;margin:0;padding:0;}
-      .header{background:#2c3e50;color:#fff;padding:20pt 0.9in;text-align:center;}
-      .name{font-size:22pt;font-weight:bold;color:#fff;margin-bottom:2pt;}
-      .contact{font-size:9pt;color:rgba(255,255,255,0.8);}
-      .sidebar{width:30%;background:#f0f4f8;padding:14pt 12pt;vertical-align:top;border-right:2pt solid #dde3ea;}
-      .main{padding:14pt 32pt 14pt 18pt;vertical-align:top;}
-      .sh{font-size:9pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#2c3e50;border-bottom:1.5px solid #2c3e50;padding-bottom:2pt;margin-top:12pt;margin-bottom:4pt;}
-      .sidebar .sh{color:#3498db;border-bottom-color:#3498db;font-size:8.5pt;}
-      .sub{font-size:9.5pt;font-weight:bold;margin-bottom:1pt;}
-      .bd{font-size:9pt;margin-bottom:4pt;}
-      ul{margin:2pt 0 6pt 14pt;}li{font-size:9pt;margin-bottom:2pt;}
-      </style></head><body>
-      <div class="header"><p class="name">${d.name}</p><p class="contact">${d.contact}</p></div>
-      <table width="100%" style="border-collapse:collapse;"><tr>
-        <td class="sidebar">${sidebarHTML}</td>
-        <td class="main">${mainHTML}</td>
-      </tr></table>
-      </body></html>`;
+*{box-sizing:border-box;margin:0;padding:0;}
+@page{size:8.5in 11in;margin:0;}
+@media print{head,footer{display:none!important;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+body{font-family:Arial,sans-serif;font-size:10pt;color:#2a2a2a;line-height:1.5;background:#fff;}
+
+/* Header */
+.header{background:#1b2a4a;padding:24pt 0.6in 20pt;text-align:center;}
+.header-name{font-family:Georgia,serif;font-size:28pt;font-weight:bold;color:#fff;letter-spacing:5px;text-transform:uppercase;margin-bottom:5pt;}
+.header-title{font-size:9pt;color:rgba(255,255,255,0.6);letter-spacing:3px;text-transform:uppercase;}
+
+/* Layout */
+table.layout{width:100%;border-collapse:collapse;}
+td.sidebar{width:28%;background:#f4f4f4;padding:16pt 12pt;vertical-align:top;border-right:1pt solid #e2e2e2;}
+td.main{padding:16pt 0.5in 16pt 18pt;vertical-align:top;}
+
+/* Sidebar */
+.sb-block{margin-bottom:16pt;}
+.sb-sh{font-size:7.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:2.5px;color:#1b2a4a;border-bottom:1.5pt solid #c9a84c;padding-bottom:3pt;margin-bottom:6pt;}
+.sb-contact{font-size:8.5pt;color:#444;margin-bottom:3pt;line-height:1.4;}
+.sb-sub{font-size:8.5pt;font-weight:bold;color:#1b2a4a;margin-bottom:1pt;}
+.sb-body{font-size:8.5pt;color:#555;margin-bottom:3pt;line-height:1.4;}
+.sb-bullet{font-size:8.5pt;color:#444;margin-bottom:2pt;line-height:1.4;padding-left:4pt;}
+
+/* Main */
+.main-section{margin-bottom:14pt;}
+.main-sh{font-size:9.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:2.5px;color:#1b2a4a;margin-bottom:3pt;}
+.gold-rule{height:1.5pt;background:#c9a84c;margin-bottom:8pt;}
+.job-title{font-size:10.5pt;font-weight:bold;color:#1b2a4a;margin-bottom:1pt;}
+.job-meta{font-size:9pt;color:#777;margin-bottom:4pt;font-style:italic;}
+.job-spacer{height:8pt;}
+.main-body{font-size:9.5pt;color:#333;margin-bottom:5pt;line-height:1.55;}
+ul{margin:3pt 0 6pt 14pt;}
+li{font-size:9.5pt;color:#333;margin-bottom:3pt;line-height:1.45;}
+</style></head><body>
+<div class="header">
+  <p class="header-name">${d.name}</p>
+  <p class="header-title">${d.industry||"Food &amp; Beverage Executive"}</p>
+</div>
+<table class="layout"><tr>
+  <td class="sidebar">${sidebarHTML}</td>
+  <td class="main">${mainHTML}</td>
+</tr></table>
+</body></html>`;
     }
 
     else if(template === "minimal"){
@@ -878,22 +958,31 @@ function App(){
                         </div>
                       </div>
                     )},
-                    {id:"twocol",name:"Two-Column",desc:"Dark sidebar + skills list · Max content",preview:(
-                      <div style={{fontFamily:"Arial,sans-serif",display:"flex",height:"160px",background:"#fff"}}>
-                        <div style={{width:"36%",background:"#2c3e50",padding:"8px 7px",color:"#fff",flexShrink:0}}>
-                          <div style={{fontSize:"8px",fontWeight:"bold",color:"#fff",marginBottom:"1px",textAlign:"center"}}>JOHN</div>
-                          <div style={{fontSize:"8px",fontWeight:"bold",color:"#3498db",textAlign:"center",marginBottom:"5px"}}>SMITH</div>
-                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.6)",textAlign:"center",marginBottom:"6px"}}>(555) 123-4567</div>
-                          <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#3498db",borderBottom:"1px solid #3498db",paddingBottom:"1px",marginBottom:"3px"}}>Skills</div>
-                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.85)",lineHeight:"1.7"}}>· Leadership<br/>· Operations<br/>· P&L Mgmt<br/>· Strategy</div>
-                          <div style={{fontSize:"6px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#3498db",borderBottom:"1px solid #3498db",paddingBottom:"1px",margin:"5px 0 3px"}}>Education</div>
-                          <div style={{fontSize:"5.5px",color:"rgba(255,255,255,0.85)"}}>MBA · Columbia</div>
+                    {id:"twocol",name:"Two-Column",desc:"Navy header · Gold accents · Sidebar layout",preview:(
+                      <div style={{fontFamily:"Arial,sans-serif",height:"160px",background:"#fff",overflow:"hidden",display:"flex",flexDirection:"column"}}>
+                        <div style={{background:"#1b2a4a",padding:"9px 10px",textAlign:"center",flexShrink:0}}>
+                          <div style={{fontFamily:"Georgia,serif",fontSize:"10px",fontWeight:"bold",color:"#fff",letterSpacing:"3px",textTransform:"uppercase"}}>JOHN SMITH</div>
+                          <div style={{fontSize:"5px",color:"rgba(255,255,255,0.55)",letterSpacing:"2px",textTransform:"uppercase",marginTop:"2px"}}>Food & Beverage Executive</div>
                         </div>
-                        <div style={{flex:1,padding:"8px 9px"}}>
-                          <div style={{fontSize:"6.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"1px",color:"#2c3e50",borderBottom:"1.5px solid #2c3e50",paddingBottom:"1px",marginBottom:"3px"}}>Experience</div>
-                          <div style={{fontSize:"6.5px",fontWeight:"bold",color:"#1a1a1a"}}>Senior Manager</div>
-                          <div style={{fontSize:"5.5px",color:"#888"}}>Acme Corp · 2020–2025</div>
-                          <div style={{fontSize:"5.5px",color:"#444",lineHeight:"1.3",marginTop:"2px"}}>· Led team of 50+ associates<br/>· Increased revenue by 35%<br/>· Managed $10M budget</div>
+                        <div style={{display:"flex",flex:1,overflow:"hidden"}}>
+                          <div style={{width:"32%",background:"#f4f4f4",padding:"6px 7px",borderRight:"0.5px solid #e2e2e2",flexShrink:0,overflow:"hidden"}}>
+                            <div style={{fontSize:"5.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"2px",color:"#1b2a4a",borderBottom:"1.5px solid #c9a84c",paddingBottom:"1px",marginBottom:"4px"}}>Contact</div>
+                            <div style={{fontSize:"5px",color:"#555",lineHeight:"1.7",marginBottom:"6px"}}>📍 New York, NY<br/>📞 (555) 123-4567<br/>✉ john@email.com</div>
+                            <div style={{fontSize:"5.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"2px",color:"#1b2a4a",borderBottom:"1.5px solid #c9a84c",paddingBottom:"1px",marginBottom:"4px"}}>Expertise</div>
+                            <div style={{fontSize:"5px",color:"#555",lineHeight:"1.7",marginBottom:"6px"}}>· Leadership<br/>· F&B Operations<br/>· P&L Management<br/>· Team Development</div>
+                            <div style={{fontSize:"5.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"2px",color:"#1b2a4a",borderBottom:"1.5px solid #c9a84c",paddingBottom:"1px",marginBottom:"3px"}}>Education</div>
+                            <div style={{fontSize:"5px",color:"#555",lineHeight:"1.5"}}>MBA<br/>Columbia University</div>
+                          </div>
+                          <div style={{flex:1,padding:"6px 8px",overflow:"hidden"}}>
+                            <div style={{fontSize:"5.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"2px",color:"#1b2a4a",marginBottom:"2px"}}>Professional Profile</div>
+                            <div style={{height:"1.5px",background:"#c9a84c",marginBottom:"4px"}}/>
+                            <div style={{fontSize:"5px",color:"#444",lineHeight:"1.5",marginBottom:"6px"}}>Results-driven hospitality leader with 10+ years driving F&B excellence across luxury properties.</div>
+                            <div style={{fontSize:"5.5px",fontWeight:"bold",textTransform:"uppercase",letterSpacing:"2px",color:"#1b2a4a",marginBottom:"2px"}}>Work Experience</div>
+                            <div style={{height:"1.5px",background:"#c9a84c",marginBottom:"4px"}}/>
+                            <div style={{fontSize:"6px",fontWeight:"bold",color:"#1b2a4a"}}>General Manager</div>
+                            <div style={{fontSize:"5px",color:"#888",fontStyle:"italic",marginBottom:"2px"}}>Acme Restaurant · San Diego · 2020–Present</div>
+                            <div style={{fontSize:"5px",color:"#444",lineHeight:"1.5"}}>· Directed operations for 90+ team members<br/>· Increased revenue 35% YOY</div>
+                          </div>
                         </div>
                       </div>
                     )},
