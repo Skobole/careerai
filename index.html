@@ -434,7 +434,7 @@ function App(){
           extractedText+=content.items.map(item=>item.str).join(" ")+"\n";
         }
         // Truncate if too long — keep first 8000 chars which is plenty for any resume
-        if(extractedText.length>8000) extractedText=extractedText.substring(0,8000);
+        if(extractedText.length>15000) extractedText=extractedText.substring(0,15000);
         messages=[{role:"user",content:`RESUME:\n${extractedText}\n\nJOB DESCRIPTION:\n${jobDesc}`}];
       }else{
         let resumeText=resume;
