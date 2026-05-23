@@ -355,7 +355,7 @@ Return ONLY a valid JSON object (no preamble, no markdown, no backticks) with th
     ]
   }
 }
-Rules: accurate atsScore, 3 rewritten bullets applied in resumeData, specific cover letter.`;
+Rules: accurate atsScore, 3 rewritten bullets applied in resumeData, specific cover letter. CRITICAL: In resumeData, NEVER change the candidates name, contact details, job titles, company names, or dates — copy them exactly as they appear in the original resume. Only rewrite bullet points.`;
 
 function App(){
   const [step,setStep]=useState("input");
@@ -433,7 +433,7 @@ function App(){
   async function exportPDF(){
     if(!result?.resumeData)return;
     const d=result.resumeData;
-    let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:8.5in 11in;margin:0.75in 0.9in;}body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;max-width:700px;margin:0 auto;}.name{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:2pt;letter-spacing:1px;}.contact{font-size:9.5pt;text-align:center;color:#444;margin-bottom:10pt;}.section-header{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1.5px solid #1a1a1a;margin-top:10pt;margin-bottom:4pt;padding-bottom:2pt;}.subtitle{font-size:10pt;font-weight:bold;margin-bottom:2pt;}.body{font-size:10pt;margin-bottom:4pt;}ul{margin:2pt 0 4pt 0;padding-left:16pt;}li{font-size:10pt;margin-bottom:2pt;}@media print{body{margin:0;}}</style></head><body>`;
+    let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>@page{size:8.5in 11in;margin:0.75in 0.9in;margin-header:0;margin-footer:0;}body{font-family:Arial,sans-serif;font-size:10.5pt;color:#1a1a1a;line-height:1.4;max-width:700px;margin:0 auto;}.name{font-size:18pt;font-weight:bold;text-align:center;margin-bottom:2pt;letter-spacing:1px;}.contact{font-size:9.5pt;text-align:center;color:#444;margin-bottom:10pt;}.section-header{font-size:10.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;border-bottom:1.5px solid #1a1a1a;margin-top:10pt;margin-bottom:4pt;padding-bottom:2pt;}.subtitle{font-size:10pt;font-weight:bold;margin-bottom:2pt;}.body{font-size:10pt;margin-bottom:4pt;}ul{margin:2pt 0 4pt 0;padding-left:16pt;}li{font-size:10pt;margin-bottom:2pt;}@media print{body{margin:0;}@page{margin:0.75in 0.9in;size:8.5in 11in;}html{-webkit-print-color-adjust:exact;}head,footer{display:none!important;}}</style></head><body>`;
     html+=`<p class="name">${d.name}</p><p class="contact">${d.contact}</p>`;
     if(d.summary)html+=`<p class="section-header">Professional Summary</p><p class="body">${d.summary}</p>`;
     (d.sections||[]).forEach(s=>{
@@ -475,9 +475,9 @@ function App(){
         <div className="hero-content">
           <div className="badge">ATS-Optimized Career Tool</div>
           <h1>Beat the <span>Algorithm.</span><br/>Land the Job.</h1>
-          <p className="subtitle">Most resumes never reach a human. We fix that — so you get more callbacks, more interviews, and more offers.</p>
+          <p className="subtitle">Most resumes never reach a human. We fix that — with ATS optimization, AI interview prep with daily updated questions, job recommendations, and agents working for you 24/7.</p>
           <div className="price-row">
-            <div className="price-tag"><strong>$15</strong>/analysis · No subscription. No cancel button. Ever.</div>
+            <div className="price-tag"><strong>$15/month · No subscription. No cancel button. Ever.</div>
           </div>
           <div className="feature-pills">
             <span className="feature-pill">✓ ATS Score</span>
@@ -486,6 +486,8 @@ function App(){
             <span className="feature-pill">✓ Cover Letter</span>
             <span className="feature-pill">✓ AI Coach</span>
             <span className="feature-pill">✓ Resume Export</span>
+            <span className="feature-pill">✓ Interview Prep</span>
+            <span className="feature-pill">✓ Job Recommendations</span>
           </div>
         </div>
       </div>
