@@ -253,6 +253,7 @@ function PaymentModal({onSuccess,onClose}){
   const [paying,setPaying]=useState(false);
   const [error,setError]=useState("");
   const [success,setSuccess]=useState(false);
+  const elementsRef=useRef(null);
 
   useEffect(()=>{
     const s=Stripe(STRIPE_PK);
@@ -262,21 +263,23 @@ function PaymentModal({onSuccess,onClose}){
       .then(data=>{
         if(data.clientSecret){
           const els=s.elements({clientSecret:data.clientSecret,appearance:{theme:"stripe",variables:{colorPrimary:"#ff8c32",borderRadius:"10px"}}});
+          elementsRef.current=els;
           const pe=els.create("payment");
           pe.mount("#payment-element");
           setElements(els);
-          setTimeout(()=>setLoading(false),2000);
+          setTimeout(()=>setLoading(false),3000);
         }
       })
       .catch(()=>{setError("Could not load payment form. Please try again.");setLoading(false);});
   },[]);
 
   async function handlePay(){
-    if(!stripe||!elements)return;
+    const els=elementsRef.current||elements;
+    if(!stripe||!els)return;
     setPaying(true);setError("");
     try{
       const {error:stripeError,paymentIntent}=await stripe.confirmPayment({
-        elements,
+        elements:els,
         confirmParams:{return_url:window.location.origin},
         redirect:"if_required"
       });
