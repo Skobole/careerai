@@ -395,15 +395,14 @@ function App(){
   const canSubmit=hasResume&&jobDesc.trim().length>60;
 
   function handleAnalyzeClick(){
-    // Check file size before payment — max 500KB file, max 30KB pasted text
     if(resumeFile){
-      if(resumeFile.size > 1048576){
-        setError("Your resume file is too large. Please use a file under 1MB or paste the text instead.");
+      if(resumeFile.size > 512000){
+        setError("Your file is too large (max 500KB). A typical resume PDF is under 200KB. Please compress your file or paste the text instead.");
         return;
       }
     }
     if(resume && resume.length > 30000){
-      setError("Your resume text is too long. Please shorten it to under 30,000 characters.");
+      setError("Your resume text is too long. Please shorten it.");
       return;
     }
     if(jobDesc.length > 15000){
