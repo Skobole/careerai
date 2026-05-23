@@ -397,8 +397,8 @@ function App(){
   function handleAnalyzeClick(){
     // Check file size before payment — max 500KB file, max 30KB pasted text
     if(resumeFile){
-      if(resumeFile.size > 2097152){
-        setError("Your resume file is too large. Please use a file under 2MB or paste the text instead.");
+      if(resumeFile.size > 1048576){
+        setError("Your resume file is too large. Please use a file under 1MB or paste the text instead.");
         return;
       }
     }
