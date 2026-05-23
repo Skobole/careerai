@@ -9,25 +9,14 @@ export default async function handler(req, res) {
     const stripe = await import('stripe').then(m => m.default(process.env.STRIPE_SECRET_KEY));
     const { action } = req.body;
 
-    if (action === 'create_checkout') {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [{
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'CareerAI — ATS Analysis',
-              description: 'ATS Score, Keyword Gap, Bullet Rewrites, Cover Letter, AI Coach, Resume Export',
-            },
-            unit_amount: 1500,
-          },
-          quantity: 1,
-        }],
-        mode: 'payment',
-        success_url: `${req.headers.origin}?payment=success`,
-        cancel_url: `${req.headers.origin}?payment=cancelled`,
+    if (action === 'create_payment_intent') {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 1500,
+        currency: 'usd',
+        automatic_payment_methods: { enabled: true },
+        metadata: { product: 'careerai_analysis' }
       });
-      return res.status(200).json({ url: session.url });
+      return res.status(200).json({ clientSecret: paymentIntent.client_secret });
     }
 
     return res.status(400).json({ error: 'Invalid action' });
