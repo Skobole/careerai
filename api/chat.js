@@ -1,3 +1,6 @@
+export const config = {
+  maxDuration: 60,
+};
 const rateLimit = new Map();
 
 function isRateLimited(ip) {
