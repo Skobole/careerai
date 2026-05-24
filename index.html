@@ -212,7 +212,7 @@ function ScoreGauge({score}){
   );
 }
 
-function CoachChat({result,setResult}){
+function CoachChat({result,setResult,setEditableCoverLetter}){
   const [messages,setMessages]=useState([]);
   const [input,setInput]=useState("");
   const [thinking,setThinking]=useState(false);
@@ -232,7 +232,7 @@ function CoachChat({result,setResult}){
       const reply=data.content?.map(b=>b.text||"").join("")||"Sorry, something went wrong.";
       setMessages(prev=>[...prev,{role:"assistant",content:reply}]);
       const clMatch=reply.match(/Dear Hiring Manager[\s\S]+Best regards[\s\S]*?\[Your Name\]/);
-      if(clMatch)setResult(prev=>({...prev,coverLetter:clMatch[0]}));
+      if(clMatch){setResult(prev=>({...prev,coverLetter:clMatch[0]}));if(setEditableCoverLetter)setEditableCoverLetter(clMatch[0]);}
     }catch(e){
       setMessages(prev=>[...prev,{role:"assistant",content:"Something went wrong. Please try again."}]);
     }
@@ -381,6 +381,7 @@ function App(){
   const [loadStep,setLoadStep]=useState(0);
   const [exporting,setExporting]=useState(false);
   const [editableResume,setEditableResume]=useState("");
+  const [editableCoverLetter,setEditableCoverLetter]=useState("");
   const [selectedTemplate,setSelectedTemplate]=useState("classic");
   const [paid,setPaid]=useState(false);
   const [showPayment,setShowPayment]=useState(false);
@@ -467,6 +468,7 @@ function App(){
       if(parsed.resumeData?.summary)preText+=`PROFESSIONAL SUMMARY\n${parsed.resumeData.summary}\n\n`;
       (parsed.resumeData?.sections||[]).forEach(s=>{preText+=`${s.title.toUpperCase()}\n`;if(s.subtitle)preText+=`${s.subtitle}\n`;if(s.body)preText+=`${s.body}\n`;if(s.bullets)s.bullets.forEach(b=>{preText+=`• ${b}\n`;});preText+="\n";});
       setEditableResume(preText);
+      setEditableCoverLetter(parsed.coverLetter||"");
     }catch(err){
       setError("Upload failed — please use the Paste text tab for best results. Copy your resume text and paste it directly.");setStep("input");
     }
@@ -1024,8 +1026,12 @@ li{
               )}
               <div className="card result-section">
                 <div className="section-label">Tailored Cover Letter</div>
-                <div className="result-box">{result.coverLetter}</div>
-                <button className="btn-copy" onClick={()=>{navigator.clipboard.writeText(result.coverLetter);setCopied(true);setTimeout(()=>setCopied(false),2000);}}>
+                <textarea
+                  style={{width:"100%",minHeight:"280px",background:"#fffaf5",border:"1px solid rgba(255,140,50,0.2)",borderRadius:"14px",padding:"20px",fontFamily:"DM Sans,sans-serif",fontSize:"0.93rem",lineHeight:"1.85",color:"rgba(26,26,26,0.85)",resize:"vertical",outline:"none",fontWeight:"300"}}
+                  value={editableCoverLetter}
+                  onChange={e=>setEditableCoverLetter(e.target.value)}
+                />
+                <button className="btn-copy" onClick={()=>{navigator.clipboard.writeText(editableCoverLetter);setCopied(true);setTimeout(()=>setCopied(false),2000);}}>
                   {copied?"✓ Copied!":"Copy to clipboard"}
                 </button>
               </div>
@@ -1183,7 +1189,7 @@ li{
                 <p className="export-note" style={{marginTop:"6px",color:"#ff8c32",fontWeight:"500"}}>PDF tip: When the print dialog opens — uncheck "Headers and Footers" to remove the URL and timestamp.</p>
               </div>
               <div className="card">
-                <CoachChat result={result} setResult={setResult}/>
+                <CoachChat result={result} setResult={setResult} setEditableCoverLetter={setEditableCoverLetter}/>
               </div>
               <button className="btn-ghost" onClick={reset}>← Analyze a new application</button>
             </>
