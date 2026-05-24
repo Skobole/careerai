@@ -462,7 +462,7 @@ function App(){
       }
       setResult(parsed);setStep("result");
     }catch(err){
-      setError("Something went wrong: "+err.message);setStep("input");
+      setError("Upload failed — please use the Paste text tab for best results. Copy your resume text and paste it directly.");setStep("input");
     }
   }
 
@@ -951,7 +951,7 @@ li{
                 </div>
                 {resumeTab==="paste"
                   ?<textarea rows={10} placeholder="Paste your full resume text here..." value={resume} onChange={e=>{setResume(e.target.value);setResumeFile(null);}}/>
-                  :<DropZone file={resumeFile} onFile={f=>{setResumeFile(f);setResume("");}} onClear={()=>setResumeFile(null)}/>}
+                  :<><DropZone file={resumeFile} onFile={f=>{setResumeFile(f);setResume("");}} onClear={()=>setResumeFile(null)}/><p style={{fontSize:"0.75rem",color:"#ff8c32",marginTop:"8px",textAlign:"center"}}>💡 Tip: Paste text gives better results than uploading</p></>}
               </div>
               <div className="card">
                 <div className="card-label">Job Description</div>
