@@ -380,6 +380,7 @@ function App(){
   const [copiedResume,setCopiedResume]=useState(false);
   const [loadStep,setLoadStep]=useState(0);
   const [exporting,setExporting]=useState(false);
+  const [editableResume,setEditableResume]=useState("");
   const [selectedTemplate,setSelectedTemplate]=useState("classic");
   const [paid,setPaid]=useState(false);
   const [showPayment,setShowPayment]=useState(false);
@@ -461,6 +462,11 @@ function App(){
         catch(e2){throw new Error("Analysis failed — please paste your resume text instead of uploading for best results");}
       }
       setResult(parsed);setStep("result");
+      // Pre-fill editable resume
+      let preText=`${parsed.resumeData?.name||""}\n${parsed.resumeData?.contact||""}\n\n`;
+      if(parsed.resumeData?.summary)preText+=`PROFESSIONAL SUMMARY\n${parsed.resumeData.summary}\n\n`;
+      (parsed.resumeData?.sections||[]).forEach(s=>{preText+=`${s.title.toUpperCase()}\n`;if(s.subtitle)preText+=`${s.subtitle}\n`;if(s.body)preText+=`${s.body}\n`;if(s.bullets)s.bullets.forEach(b=>{preText+=`• ${b}\n`;});preText+="\n";});
+      setEditableResume(preText);
     }catch(err){
       setError("Upload failed — please use the Paste text tab for best results. Copy your resume text and paste it directly.");setStep("input");
     }
@@ -1026,9 +1032,12 @@ li{
               <div className="card result-section">
                 <div className="section-label">Optimized Resume</div>
                 <p style={{fontSize:"0.82rem",color:"rgba(26,26,26,0.4)",marginBottom:"14px",fontWeight:300}}>Your complete resume rebuilt with optimized bullets. Choose a template then export.</p>
-                <div className="result-box" style={{maxHeight:"280px",overflowY:"auto",fontFamily:"Arial,sans-serif",fontSize:"0.88rem"}}>
-                  {result.resumeData?getOptimizedText():"Resume data not available."}
-                </div>
+                <textarea
+                  style={{width:"100%",minHeight:"320px",background:"#fffaf5",border:"1px solid rgba(255,140,50,0.2)",borderRadius:"14px",padding:"20px",fontFamily:"Arial,sans-serif",fontSize:"0.88rem",lineHeight:"1.7",color:"#1a1a1a",resize:"vertical",outline:"none"}}
+                  value={editableResume}
+                  onChange={e=>setEditableResume(e.target.value)}
+                  placeholder="Your optimized resume will appear here..."
+                />
                 <div className="section-label" style={{marginTop:"20px"}}>Choose Template</div>
                 <div className="template-grid">
                   {[
@@ -1160,7 +1169,7 @@ li{
                   ))}
                 </div>
                 <div className="export-row">
-                  <button className="btn-copy" onClick={()=>{navigator.clipboard.writeText(getOptimizedText());setCopiedResume(true);setTimeout(()=>setCopiedResume(false),2000);}}>
+                  <button className="btn-copy" onClick={()=>{navigator.clipboard.writeText(editableResume);setCopiedResume(true);setTimeout(()=>setCopiedResume(false),2000);}}>
                     {copiedResume?"✓ Copied!":"Copy text"}
                   </button>
                   <button className="btn-export word" onClick={exportWord} disabled={exporting||!result.resumeData}>
