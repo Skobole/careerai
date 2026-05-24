@@ -458,7 +458,7 @@ function App(){
         while(brackets>0){fixed+="]";brackets--;}
         while(braces>0){fixed+="}";braces--;}
         try{parsed=JSON.parse(fixed);}
-        catch(e2){throw new Error("Response too large — please try with a shorter resume or job description");}
+        catch(e2){throw new Error("Analysis failed — please paste your resume text instead of uploading for best results");}
       }
       setResult(parsed);setStep("result");
     }catch(err){
@@ -608,7 +608,8 @@ function App(){
       mainGrouped.forEach(({title, grp}) => {
         mainHTML += `<div class="main-block"><p class="main-heading">${title}</p><div class="main-rule"></div>`;
         grp.forEach((s, idx) => {
-          if(idx > 0) mainHTML += `<div style="height:8pt;"></div>`;
+          if(idx > 0) mainHTML += `<div style="height:6pt;"></div>`;
+          mainHTML += `<div class="job-entry">`;
           if(s.subtitle){
             const subParts = s.subtitle.split(/\s*[|]\s*/);
             mainHTML += `<p class="job-title">${subParts[0]||s.subtitle}</p>`;
@@ -621,6 +622,7 @@ function App(){
             s.bullets.forEach(b => { mainHTML += `<li>${b}</li>`; });
             mainHTML += `</ul>`;
           }
+          mainHTML += `</div>`;
         });
         mainHTML += `</div>`;
       });
@@ -765,6 +767,10 @@ li{
   color:#333;
   margin-bottom:3pt;
   line-height:1.45;
+}
+.job-entry{
+  page-break-inside:avoid;
+  break-inside:avoid;
 }
 </style>
 </head>
