@@ -468,7 +468,7 @@ function App(){
 
   function buildResumeHTML(d, template){
     const sections = (d.sections||[]);
-    const sidebarKeys = ["Education","Certifications","Skills","Core Competencies","Technology","Additional Highlights","Languages","Certification","Award","Volunteer","Publication"];
+    const sidebarKeys = ["Education","Certifications","Technology","Additional Highlights","Languages","Certification","Award","Volunteer","Publication"];
     const expKeys = ["Professional Experience","Experience","Work Experience"];
     
     // Group duplicate section titles together
@@ -594,6 +594,17 @@ function App(){
         </div>`;
       }
 
+      // Add Core Competencies to main column if present
+      const coreComp = sections.find(s=>s.title.toLowerCase().includes("core competencies") || s.title.toLowerCase().includes("competencies"));
+      if(coreComp){
+        mainHTML += `<div class="main-block">
+          <p class="main-heading">${coreComp.title.replace(/\s+/g,' ').trim()}</p>
+          <div class="main-rule"></div>
+          ${coreComp.body ? `<p class="main-text">${coreComp.body}</p>` : ''}
+          ${coreComp.bullets?.length ? `<ul>${coreComp.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>` : ''}
+        </div>`;
+      }
+
       // Group same-title sections
       const mainGrouped = [];
       let mgi = 0;
@@ -699,26 +710,26 @@ td.main-col{
   margin-bottom:6pt;
 }
 .sb-contact{
-  font-size:8.5pt;
+  font-size:8pt;
   color:#444;
   margin-bottom:3pt;
   line-height:1.4;
 }
 .sb-sub{
-  font-size:8.5pt;
+  font-size:8pt;
   font-weight:bold;
   color:#1b2a4a;
   margin-bottom:1pt;
   line-height:1.4;
 }
 .sb-text{
-  font-size:8.5pt;
+  font-size:8pt;
   color:#555;
   margin-bottom:3pt;
-  line-height:1.45;
+  line-height:1.4;
 }
 .sb-item{
-  font-size:8.5pt;
+  font-size:8pt;
   color:#444;
   margin-bottom:2pt;
   line-height:1.4;
